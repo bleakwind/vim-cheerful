@@ -89,9 +89,9 @@ if exists('g:cheerful_neatly_enable') && g:cheerful_neatly_enable == 1
            let l:i = l:i+1
         endwhile
         if len(g:cheerful_neatly_edit_visible) > 0
-            for key in sort(keys(g:cheerful_neatly_edit_visible))
-                if g:cheerful_neatly_edit_visible[key] > 0
-                    let g:cheerful_neatly_winid_main = g:cheerful_neatly_edit_visible[key]
+            for l:key in sort(keys(g:cheerful_neatly_edit_visible))
+                if g:cheerful_neatly_edit_visible[l:key] > 0
+                    let g:cheerful_neatly_winid_main = g:cheerful_neatly_edit_visible[l:key]
                     break
                 endif
             endfor
@@ -163,8 +163,8 @@ if exists('g:cheerful_neatly_enable') && g:cheerful_neatly_enable == 1
         call s:ReturnWinlist()
         call OperateJump()
         let l:winview_list   = {}
-        for item in values(g:cheerful_set_name)
-            let l:winview_list[item] = s:WinviewSave(item)
+        for l:item in values(g:cheerful_set_name)
+            let l:winview_list[l:item] = s:WinviewSave(l:item)
         endfor
 
         call OperateJump()
@@ -185,8 +185,8 @@ if exists('g:cheerful_neatly_enable') && g:cheerful_neatly_enable == 1
 
         call s:ReturnWinlist()
         call OperateJump()
-        for item in values(g:cheerful_set_name)
-            call s:WinviewRestore(item, l:winview_list[item])
+        for l:item in values(g:cheerful_set_name)
+            call s:WinviewRestore(l:item, l:winview_list[l:item])
         endfor
 
         if l:winid_original != s:ReturnWinid()
@@ -203,53 +203,53 @@ if exists('g:cheerful_neatly_enable') && g:cheerful_neatly_enable == 1
 
             call OperateJump()
             let l:winview_list   = {}
-            for item in values(g:cheerful_set_name)
-                let l:winview_list[item] = s:WinviewSave(item)
+            for l:item in values(g:cheerful_set_name)
+                let l:winview_list[l:item] = s:WinviewSave(l:item)
             endfor
 
             call OperateJump()
             let l:winid_info_id = 0
             let l:winid_info_size = 0
 
-            for item in values(g:cheerful_set_name)
-                if g:cheerful_set_part[item] == 'info'
-                    if s:ToolVisible(item) == 1
-                        for v in values(g:cheerful_set_name)
-                            if g:cheerful_set_part[v] == 'info' && v != item
-                                call s:HandleTool(v,'close')
+            for l:item in values(g:cheerful_set_name)
+                if g:cheerful_set_part[l:item] == 'info'
+                    if s:ToolVisible(l:item) == 1
+                        for l:v in values(g:cheerful_set_name)
+                            if g:cheerful_set_part[l:v] == 'info' && l:v != l:item
+                                call s:HandleTool(l:v,'close')
                             endif
                         endfor
                         exe 'wincmd L'
-                        exe 'vertical resize '.g:cheerful_set_size[item]
-                        if g:cheerful_set_nocur[item] == 1
+                        exe 'vertical resize '.g:cheerful_set_size[l:item]
+                        if g:cheerful_set_nocur[l:item] == 1
                             setlocal nocursorline
                             setlocal nocursorcolumn
                         endif
-                        if g:cheerful_set_stay[item] == 1
+                        if g:cheerful_set_stay[l:item] == 1
                             let l:winid_original = s:ReturnWinid()
                         endif
                         let l:winid_info_id = s:ReturnWinid()
-                        let l:winid_info_size = g:cheerful_set_size[item]
+                        let l:winid_info_size = g:cheerful_set_size[l:item]
                         break
                     endif
                 endif
             endfor
 
-            for item in values(g:cheerful_set_name)
-                if g:cheerful_set_part[item] == 'tab'
-                    if s:ToolVisible(item) == 1
-                        for v in values(g:cheerful_set_name)
-                            if g:cheerful_set_part[v] == 'tab' && v != item
-                                call s:HandleTool(v,'close')
+            for l:item in values(g:cheerful_set_name)
+                if g:cheerful_set_part[l:item] == 'tab'
+                    if s:ToolVisible(l:item) == 1
+                        for l:v in values(g:cheerful_set_name)
+                            if g:cheerful_set_part[l:v] == 'tab' && l:v != l:item
+                                call s:HandleTool(l:v,'close')
                             endif
                         endfor
                         exe 'wincmd K'
-                        exe 'resize '.g:cheerful_set_size[item]
-                        if g:cheerful_set_nocur[item] == 1
+                        exe 'resize '.g:cheerful_set_size[l:item]
+                        if g:cheerful_set_nocur[l:item] == 1
                             setlocal nocursorline
                             setlocal nocursorcolumn
                         endif
-                        if g:cheerful_set_stay[item] == 1
+                        if g:cheerful_set_stay[l:item] == 1
                             let l:winid_original = s:ReturnWinid()
                         endif
                         break
@@ -257,21 +257,21 @@ if exists('g:cheerful_neatly_enable') && g:cheerful_neatly_enable == 1
                 endif
             endfor
 
-            for item in values(g:cheerful_set_name)
-                if g:cheerful_set_part[item] == 'debug'
-                    if s:ToolVisible(item) == 1
-                        for v in values(g:cheerful_set_name)
-                            if g:cheerful_set_part[v] == 'debug' && v != item
-                                call s:HandleTool(v,'close')
+            for l:item in values(g:cheerful_set_name)
+                if g:cheerful_set_part[l:item] == 'debug'
+                    if s:ToolVisible(l:item) == 1
+                        for l:v in values(g:cheerful_set_name)
+                            if g:cheerful_set_part[l:v] == 'debug' && l:v != l:item
+                                call s:HandleTool(l:v,'close')
                             endif
                         endfor
                         exe 'wincmd J'
-                        exe 'resize '.g:cheerful_set_size[item]
-                        if g:cheerful_set_nocur[item] == 1
+                        exe 'resize '.g:cheerful_set_size[l:item]
+                        if g:cheerful_set_nocur[l:item] == 1
                             setlocal nocursorline
                             setlocal nocursorcolumn
                         endif
-                        if g:cheerful_set_stay[item] == 1
+                        if g:cheerful_set_stay[l:item] == 1
                             let l:winid_original = s:ReturnWinid()
                         endif
                         break
@@ -279,21 +279,21 @@ if exists('g:cheerful_neatly_enable') && g:cheerful_neatly_enable == 1
                 endif
             endfor
 
-            for item in values(g:cheerful_set_name)
-                if g:cheerful_set_part[item] == 'tree'
-                    if s:ToolVisible(item) == 1
-                        for v in values(g:cheerful_set_name)
-                            if g:cheerful_set_part[v] == 'tree' && v != item
-                                call s:HandleTool(v,'close')
+            for l:item in values(g:cheerful_set_name)
+                if g:cheerful_set_part[l:item] == 'tree'
+                    if s:ToolVisible(l:item) == 1
+                        for l:v in values(g:cheerful_set_name)
+                            if g:cheerful_set_part[l:v] == 'tree' && l:v != l:item
+                                call s:HandleTool(l:v,'close')
                             endif
                         endfor
                         exe 'wincmd H'
-                        exe 'vertical resize '.g:cheerful_set_size[item]
-                        if g:cheerful_set_nocur[item] == 1
+                        exe 'vertical resize '.g:cheerful_set_size[l:item]
+                        if g:cheerful_set_nocur[l:item] == 1
                             setlocal nocursorline
                             setlocal nocursorcolumn
                         endif
-                        if g:cheerful_set_stay[item] == 1
+                        if g:cheerful_set_stay[l:item] == 1
                             let l:winid_original = s:ReturnWinid()
                         endif
                         if l:winid_info_id > 0
@@ -306,8 +306,8 @@ if exists('g:cheerful_neatly_enable') && g:cheerful_neatly_enable == 1
             endfor
 
             call OperateJump()
-            for item in values(g:cheerful_set_name)
-                call s:WinviewRestore(item, l:winview_list[item])
+            for l:item in values(g:cheerful_set_name)
+                call s:WinviewRestore(l:item, l:winview_list[l:item])
             endfor
 
         endif
@@ -330,9 +330,9 @@ if exists('g:cheerful_neatly_enable') && g:cheerful_neatly_enable == 1
 
     function OperateTool(name, ope)
         if a:ope == 'open'
-            for item in values(g:cheerful_set_name)
-                if g:cheerful_set_part[item] == g:cheerful_set_part[a:name] && item != a:name
-                    call s:HandleTool(item, 'close')
+            for l:item in values(g:cheerful_set_name)
+                if g:cheerful_set_part[l:item] == g:cheerful_set_part[a:name] && l:item != a:name
+                    call s:HandleTool(l:item, 'close')
                 endif
             endfor
             call s:HandleTool(a:name, 'open')
@@ -343,24 +343,24 @@ if exists('g:cheerful_neatly_enable') && g:cheerful_neatly_enable == 1
     endfunction
 
     function ResetTree()
-        for item in values(g:cheerful_set_name)
-            if g:cheerful_set_part[item] == 'tree'
-                call s:HandleTool(item, 'open')
+        for l:item in values(g:cheerful_set_name)
+            if g:cheerful_set_part[l:item] == 'tree'
+                call s:HandleTool(l:item, 'open')
             endif
         endfor
-        for item in values(g:cheerful_set_name)
-            if g:cheerful_set_part[item] == 'tab'
-                call s:HandleTool(item, 'open')
+        for l:item in values(g:cheerful_set_name)
+            if g:cheerful_set_part[l:item] == 'tab'
+                call s:HandleTool(l:item, 'open')
             endif
         endfor
-        for item in values(g:cheerful_set_name)
-            if g:cheerful_set_part[item] == 'debug'
-                call s:HandleTool(item, 'close')
+        for l:item in values(g:cheerful_set_name)
+            if g:cheerful_set_part[l:item] == 'debug'
+                call s:HandleTool(l:item, 'close')
             endif
         endfor
-        for item in values(g:cheerful_set_name)
-            if g:cheerful_set_part[item] == 'info'
-                call s:HandleTool(item, 'close')
+        for l:item in values(g:cheerful_set_name)
+            if g:cheerful_set_part[l:item] == 'info'
+                call s:HandleTool(l:item, 'close')
             endif
         endfor
         call s:HandleResize()
@@ -368,24 +368,24 @@ if exists('g:cheerful_neatly_enable') && g:cheerful_neatly_enable == 1
     endfunction
 
     function ResetEdit()
-        for item in values(g:cheerful_set_name)
-            if g:cheerful_set_part[item] == 'tree'
-                call s:HandleTool(item, 'close')
+        for l:item in values(g:cheerful_set_name)
+            if g:cheerful_set_part[l:item] == 'tree'
+                call s:HandleTool(l:item, 'close')
             endif
         endfor
-        for item in values(g:cheerful_set_name)
-            if g:cheerful_set_part[item] == 'tab'
-                call s:HandleTool(item, 'open')
+        for l:item in values(g:cheerful_set_name)
+            if g:cheerful_set_part[l:item] == 'tab'
+                call s:HandleTool(l:item, 'open')
             endif
         endfor
-        for item in values(g:cheerful_set_name)
-            if g:cheerful_set_part[item] == 'debug'
-                call s:HandleTool(item, 'close')
+        for l:item in values(g:cheerful_set_name)
+            if g:cheerful_set_part[l:item] == 'debug'
+                call s:HandleTool(l:item, 'close')
             endif
         endfor
-        for item in values(g:cheerful_set_name)
-            if g:cheerful_set_part[item] == 'info'
-                call s:HandleTool(item, 'close')
+        for l:item in values(g:cheerful_set_name)
+            if g:cheerful_set_part[l:item] == 'info'
+                call s:HandleTool(l:item, 'close')
             endif
         endfor
         call s:HandleResize()
@@ -393,24 +393,24 @@ if exists('g:cheerful_neatly_enable') && g:cheerful_neatly_enable == 1
     endfunction
 
     function ResetDebug()
-        for item in values(g:cheerful_set_name)
-            if g:cheerful_set_part[item] == 'tree'
-                call s:HandleTool(item, 'open')
+        for l:item in values(g:cheerful_set_name)
+            if g:cheerful_set_part[l:item] == 'tree'
+                call s:HandleTool(l:item, 'open')
             endif
         endfor
-        for item in values(g:cheerful_set_name)
-            if g:cheerful_set_part[item] == 'tab'
-                call s:HandleTool(item, 'open')
+        for l:item in values(g:cheerful_set_name)
+            if g:cheerful_set_part[l:item] == 'tab'
+                call s:HandleTool(l:item, 'open')
             endif
         endfor
-        for item in values(g:cheerful_set_name)
-            if g:cheerful_set_part[item] == 'debug'
-                call s:HandleTool(item, 'open')
+        for l:item in values(g:cheerful_set_name)
+            if g:cheerful_set_part[l:item] == 'debug'
+                call s:HandleTool(l:item, 'open')
             endif
         endfor
-        for item in values(g:cheerful_set_name)
-            if g:cheerful_set_part[item] == 'info'
-                call s:HandleTool(item, 'close')
+        for l:item in values(g:cheerful_set_name)
+            if g:cheerful_set_part[l:item] == 'info'
+                call s:HandleTool(l:item, 'close')
             endif
         endfor
         call s:HandleResize()
@@ -449,10 +449,10 @@ if exists('g:cheerful_reopen_enable') && g:cheerful_reopen_enable == 1
         endif
 
         let l:file_msg = {}
-        for file_list in g:cheerful_reopen_data
-            let file_info = split(file_list, '*')
-            if len(file_info) == 5
-                let l:file_msg[file_info[0]] = [file_info[1], file_info[2], file_info[3], file_info[4]]
+        for l:file_list in g:cheerful_reopen_data
+            let l:file_info = split(l:file_list, '*')
+            if len(l:file_info) == 5
+                let l:file_msg[l:file_info[0]] = [l:file_info[1], l:file_info[2], l:file_info[3], l:file_info[4]]
             endif
         endfor
         let l:current_line    = line(".")
@@ -465,13 +465,13 @@ if exists('g:cheerful_reopen_enable') && g:cheerful_reopen_enable == 1
         endif
 
         let l:buflist = []
-        for file_list in getbufinfo({'buflisted':1})
-            if file_list.name != "" && filereadable(file_list.name)
+        for l:file_list in getbufinfo({'buflisted':1})
+            if l:file_list.name != "" && filereadable(l:file_list.name)
                 let l:this_msg = ["x", "1", "1", "1"]
-                if has_key(l:file_msg, file_list.name)
-                    let l:this_msg = l:file_msg[file_list.name]
+                if has_key(l:file_msg, l:file_list.name)
+                    let l:this_msg = l:file_msg[l:file_list.name]
                 endif
-                call add(l:buflist, file_list.name."*".l:this_msg[0]."*".l:this_msg[1]."*".l:this_msg[2]."*".l:this_msg[3])
+                call add(l:buflist, l:file_list.name."*".l:this_msg[0]."*".l:this_msg[1]."*".l:this_msg[2]."*".l:this_msg[3])
             endif
         endfor
         let g:cheerful_reopen_data = l:buflist
@@ -483,24 +483,24 @@ if exists('g:cheerful_reopen_enable') && g:cheerful_reopen_enable == 1
         endif
         let l:current_msg = []
         let l:file_msg = {}
-        for file_list in g:cheerful_reopen_data
-            let file_info = split(file_list, '*')
-            if len(file_info) == 5
-                let l:file_msg[file_info[0]] = [file_info[1], file_info[2], file_info[3], file_info[4]]
+        for l:file_list in g:cheerful_reopen_data
+            let l:file_info = split(l:file_list, '*')
+            if len(l:file_info) == 5
+                let l:file_msg[l:file_info[0]] = [l:file_info[1], l:file_info[2], l:file_info[3], l:file_info[4]]
             endif
         endfor
         let l:buflist = []
-        for file_list in getbufinfo({'buflisted':1})
-            if file_list.name != "" && filereadable(file_list.name)
+        for l:file_list in getbufinfo({'buflisted':1})
+            if l:file_list.name != "" && filereadable(l:file_list.name)
                 let l:this_msg = ["x", "1", "1", "1"]
-                if has_key(l:file_msg, file_list.name)
-                    let l:this_msg = l:file_msg[file_list.name]
+                if has_key(l:file_msg, l:file_list.name)
+                    let l:this_msg = l:file_msg[l:file_list.name]
                 endif
-                if file_list.bufnr == bufnr('%')
+                if l:file_list.bufnr == bufnr('%')
                     let l:current_msg = l:this_msg
-                    call add(l:buflist, file_list.name."*c*".l:this_msg[1]."*".l:this_msg[2]."*".l:this_msg[3])
+                    call add(l:buflist, l:file_list.name."*c*".l:this_msg[1]."*".l:this_msg[2]."*".l:this_msg[3])
                 else
-                    call add(l:buflist, file_list.name."*x*".l:this_msg[1]."*".l:this_msg[2]."*".l:this_msg[3])
+                    call add(l:buflist, l:file_list.name."*x*".l:this_msg[1]."*".l:this_msg[2]."*".l:this_msg[3])
                 endif
             endif
         endfor
@@ -525,18 +525,18 @@ if exists('g:cheerful_reopen_enable') && g:cheerful_reopen_enable == 1
             let l:current_buf = 0
             let l:current_msg = []
             let g:cheerful_reopen_data = readfile(g:cheerful_reopen_file)
-            for file_list in g:cheerful_reopen_data
-                let file_info = split(file_list, '*')
-                if exists("file_info[0]") && file_info[0] != "" && filereadable(file_info[0])
-                    silent exe "edit ".file_info[0]
+            for l:file_list in g:cheerful_reopen_data
+                let l:file_info = split(l:file_list, '*')
+                if exists("l:file_info[0]") && l:file_info[0] != "" && filereadable(l:file_info[0])
+                    silent exe "edit ".l:file_info[0]
                     if exists('g:cheerful_reopen_lastplace') && g:cheerful_reopen_lastplace == 1
-                        call setpos('.', [0, file_info[4] + &scrolloff, file_info[3], 0])
+                        call setpos('.', [0, l:file_info[4] + &scrolloff, l:file_info[3], 0])
                         exe "normal zt"
-                        call setpos('.', [0, file_info[2], file_info[3], 0])
+                        call setpos('.', [0, l:file_info[2], l:file_info[3], 0])
                     endif
-                    if file_info[1] == 'c'
+                    if l:file_info[1] == 'c'
                         let l:current_buf = bufnr('%')
-                        let l:current_msg = file_info
+                        let l:current_msg = l:file_info
                     endif
                 endif
             endfor
