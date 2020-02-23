@@ -24,7 +24,7 @@ set cpoptions&vim
 
 "##############################################################################
 " 01: Function for Neatly
-" g:cheerful_neatly_enable == 1
+" g:cheerful_neatly_enable = 1
 " - Char for String:   `~!@#$%^&+-=()[]{},.;'/:|\"*?<>
 " - Char for Filename: `~!@#$%^&+-=()[]{},.;'/:
 "##############################################################################
@@ -424,9 +424,9 @@ endif
 
 "##############################################################################
 " 02: Reopen last buffer
-" g:cheerful_reopen_enable == 1
-" g:cheerful_reopen_lastplace == 1
-" g:cheerful_reopen_dir == ""
+" g:cheerful_reopen_enable = 1
+" g:cheerful_reopen_lastplace = 1
+" g:cheerful_reopen_dir = ""
 "##############################################################################
 if exists('g:cheerful_reopen_enable') && g:cheerful_reopen_enable == 1
     if !exists('g:cheerful_reopen_dir') || g:cheerful_reopen_dir == ""
