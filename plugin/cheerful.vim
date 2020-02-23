@@ -425,6 +425,7 @@ endif
 "##############################################################################
 " 02: Reopen last buffer
 " g:cheerful_reopen_enable == 1
+" g:cheerful_reopen_lastplace == 1
 " g:cheerful_reopen_dir == ""
 "##############################################################################
 if exists('g:cheerful_reopen_enable') && g:cheerful_reopen_enable == 1
@@ -434,64 +435,125 @@ if exists('g:cheerful_reopen_enable') && g:cheerful_reopen_enable == 1
         let g:cheerful_reopen_file = g:cheerful_reopen_dir."/session_filelist.vim"
     endif
 
-    function! s:cheerful_reopen_build_cmd()
-        autocmd BufEnter,VimLeave * nested call s:cheerful_reopen_build_session()
-    endfunction
+    let g:cheerful_reopen_data     = {}
 
     function! s:cheerful_reopen_build_session()
+        autocmd BufLeave * nested call s:cheerful_reopen_build_session_leave()
+        autocmd BufWinEnter * nested call s:cheerful_reopen_build_session_enter()
+        autocmd VimLeavePre * nested call s:cheerful_reopen_build_session_quit()
+    endfunction
+
+    function! s:cheerful_reopen_build_session_leave()
         if !isdirectory(g:cheerful_reopen_dir)
             call mkdir(g:cheerful_reopen_dir, 'p', 0777)
         endif
-        let buflist = []
-        for file in getbufinfo({'buflisted':1})
-            if file.name != "" && filereadable(file.name)
-                if file.bufnr == bufnr('%')
-                    call add(buflist, "c*".file.name)
+
+        let l:file_msg = {}
+        for file_list in g:cheerful_reopen_data
+            let file_info = split(file_list, '*')
+            if len(file_info) == 5
+                let l:file_msg[file_info[0]] = [file_info[1], file_info[2], file_info[3], file_info[4]]
+            endif
+        endfor
+        let l:current_line    = line(".")
+        let l:current_col     = col(".")
+        let l:win_pos         = winline()
+        let l:win_top         = l:current_line - l:win_pos + 1
+        let l:current_file    = bufname()
+        if has_key(l:file_msg, l:current_file)
+            let l:file_msg[l:current_file] = ["c", l:current_line, l:current_col, l:win_top]
+        endif
+
+        let l:buflist = []
+        for file_list in getbufinfo({'buflisted':1})
+            if file_list.name != "" && filereadable(file_list.name)
+                let l:this_msg = ["x", "1", "1", "1"]
+                if has_key(l:file_msg, file_list.name)
+                    let l:this_msg = l:file_msg[file_list.name]
+                endif
+                call add(l:buflist, file_list.name."*".l:this_msg[0]."*".l:this_msg[1]."*".l:this_msg[2]."*".l:this_msg[3])
+            endif
+        endfor
+        let g:cheerful_reopen_data = l:buflist
+    endfunction
+
+    function! s:cheerful_reopen_build_session_enter()
+        if !isdirectory(g:cheerful_reopen_dir)
+            call mkdir(g:cheerful_reopen_dir, 'p', 0777)
+        endif
+        let l:current_msg = []
+        let l:file_msg = {}
+        for file_list in g:cheerful_reopen_data
+            let file_info = split(file_list, '*')
+            if len(file_info) == 5
+                let l:file_msg[file_info[0]] = [file_info[1], file_info[2], file_info[3], file_info[4]]
+            endif
+        endfor
+        let l:buflist = []
+        for file_list in getbufinfo({'buflisted':1})
+            if file_list.name != "" && filereadable(file_list.name)
+                let l:this_msg = ["x", "1", "1", "1"]
+                if has_key(l:file_msg, file_list.name)
+                    let l:this_msg = l:file_msg[file_list.name]
+                endif
+                if file_list.bufnr == bufnr('%')
+                    let l:current_msg = l:this_msg
+                    call add(l:buflist, file_list.name."*c*".l:this_msg[1]."*".l:this_msg[2]."*".l:this_msg[3])
                 else
-                    call add(buflist, "x*".file.name)
+                    call add(l:buflist, file_list.name."*x*".l:this_msg[1]."*".l:this_msg[2]."*".l:this_msg[3])
                 endif
             endif
         endfor
-        call writefile(buflist, g:cheerful_reopen_file, 'b')
+        if exists('g:cheerful_reopen_lastplace') && g:cheerful_reopen_lastplace == 1
+            if !empty(l:current_msg)
+                call setpos('.', [0, l:current_msg[3] + &scrolloff, l:current_msg[2], 0])
+                exe "normal zt"
+                call setpos('.', [0, l:current_msg[1], l:current_msg[2], 0])
+            endif
+        endif
+        let g:cheerful_reopen_data = l:buflist
+        call writefile(g:cheerful_reopen_data, g:cheerful_reopen_file, 'b')
+    endfunction
+
+    function! s:cheerful_reopen_build_session_quit()
+        call s:cheerful_reopen_build_session_leave()
+        call writefile(g:cheerful_reopen_data, g:cheerful_reopen_file, 'b')
     endfunction
 
     function! s:cheerful_reopen_restore_session()
         if argc() == 0 && filereadable(g:cheerful_reopen_file)
-            let bufcurrent = 0
-            let buflist = readfile(g:cheerful_reopen_file)
-            for file_list in buflist
+            let l:current_buf = 0
+            let l:current_msg = []
+            let g:cheerful_reopen_data = readfile(g:cheerful_reopen_file)
+            for file_list in g:cheerful_reopen_data
                 let file_info = split(file_list, '*')
-                if exists("file_info[1]") && file_info[1] != "" && filereadable(file_info[1])
-                    silent exe "edit ".file_info[1]
-                    if file_info[0] == 'c'
-                        let bufcurrent = bufnr('%')
+                if exists("file_info[0]") && file_info[0] != "" && filereadable(file_info[0])
+                    silent exe "edit ".file_info[0]
+                    if exists('g:cheerful_reopen_lastplace') && g:cheerful_reopen_lastplace == 1
+                        call setpos('.', [0, file_info[4] + &scrolloff, file_info[3], 0])
+                        exe "normal zt"
+                        call setpos('.', [0, file_info[2], file_info[3], 0])
+                    endif
+                    if file_info[1] == 'c'
+                        let l:current_buf = bufnr('%')
+                        let l:current_msg = file_info
                     endif
                 endif
             endfor
-            if bufcurrent > 0
-                silent exe "buffer ".bufcurrent
+            if l:current_buf > 0
+                silent exe "buffer ".l:current_buf
+                if exists('g:cheerful_reopen_lastplace') && g:cheerful_reopen_lastplace == 1
+                    call setpos('.', [0, l:current_msg[4] + &scrolloff, l:current_msg[3], 0])
+                    exe "normal zt"
+                    call setpos('.', [0, l:current_msg[2], l:current_msg[3], 0])
+                endif
             endif
         endif
     endfunction
 
     " Autocmd
-    autocmd VimEnter * nested call s:cheerful_reopen_build_cmd()
+    autocmd VimEnter * nested call s:cheerful_reopen_build_session()
     autocmd VimEnter * nested call s:cheerful_reopen_restore_session()
-endif
-
-"##############################################################################
-" 03: Jump to lastplace
-" g:cheerful_lasplace_enable == 1
-"##############################################################################
-if exists('g:cheerful_lasplace_enable') && g:cheerful_lasplace_enable == 1
-    function! s:cheerful_lasplace_set()
-        if line("'\"") > 1 && line("'\"") <= line("$") && &ft !~# 'commit'
-            exe "normal! g`\""
-        endif
-    endfunction
-
-    " Autocmd
-    autocmd BufReadPost * nested call s:cheerful_lasplace_set()
 endif
 
 "##############################################################################
