@@ -23,16 +23,16 @@ let s:save_cpo = &cpoptions
 set cpoptions&vim
 
 " ============================================================================
-" 01: Function for Neatly
+" 01: Function for struct keep
 " g:cheerful_neatly_enable = 1
 " - Char for String:   `~!@#$%^&+-=()[]{},.;'/:|\"*?<>
 " - Char for Filename: `~!@#$%^&+-=()[]{},.;'/:
 " ============================================================================
 if exists('g:cheerful_neatly_enable') && g:cheerful_neatly_enable == 1
 
-    let g:cheerful_neatly_tool_visible      = {}
-    let g:cheerful_neatly_edit_visible      = {}
-    let g:cheerful_neatly_winid_main        = -1
+    if !exists('g:cheerful_set_main')
+        let g:cheerful_set_main = 0
+    endif
 
     if !exists('g:cheerful_set_name') || empty(g:cheerful_set_name)
         let g:cheerful_set_name  == {}
@@ -42,6 +42,12 @@ if exists('g:cheerful_neatly_enable') && g:cheerful_neatly_enable == 1
     endif
     if !exists('g:cheerful_set_part') || empty(g:cheerful_set_name)
         let g:cheerful_set_part  == {}
+    endif
+    if !exists('g:cheerful_set_buff') || empty(g:cheerful_set_name)
+        let g:cheerful_set_buff  == {}
+    endif
+    if !exists('g:cheerful_set_stat') || empty(g:cheerful_set_name)
+        let g:cheerful_set_stat  == {}
     endif
     if !exists('g:cheerful_set_nocur') || empty(g:cheerful_set_name)
         let g:cheerful_set_nocur == {}
@@ -58,368 +64,410 @@ if exists('g:cheerful_neatly_enable') && g:cheerful_neatly_enable == 1
     if !exists('g:cheerful_set_close') || empty(g:cheerful_set_name)
         let g:cheerful_set_close == {}
     endif
+    if !exists('g:cheerful_set_show') || empty(g:cheerful_set_name)
+        let g:cheerful_set_show == {}
+    endif
+    if !exists('g:cheerful_set_coth') || empty(g:cheerful_set_name)
+        let g:cheerful_set_coth == {}
+    endif
 
     " --------------------------------------------------
-    " Function List
+    " CheerfulInit
     " --------------------------------------------------
-    function s:ReturnWinid()
-        let l:result_winid = bufwinid('%')
-        return l:result_winid
-    endfunction
-
-    function s:ReturnWinlist()
-        let g:cheerful_neatly_tool_visible  = {}
-        let g:cheerful_neatly_edit_visible  = {}
-        let l:winid_original = s:ReturnWinid()
-        let l:bufid_last = bufnr('$')
-        let l:i = 1
-        while l:i <= l:bufid_last
-           if bufexists(l:i)
-               let l:winid_this = bufwinid(l:i)
-               if l:winid_this > 0
-                   if win_gotoid(l:winid_this) == 1
-                       if count(g:cheerful_set_type, &filetype) > 0
-                           let g:cheerful_neatly_tool_visible[&filetype] = l:winid_this
-                       else
-                           let g:cheerful_neatly_edit_visible[l:winid_this] = l:winid_this
-                       endif
-                   endif
-               endif
-           endif
-           let l:i = l:i+1
-        endwhile
-        if len(g:cheerful_neatly_edit_visible) > 0
-            for l:key in sort(keys(g:cheerful_neatly_edit_visible))
-                if g:cheerful_neatly_edit_visible[l:key] > 0
-                    let g:cheerful_neatly_winid_main = g:cheerful_neatly_edit_visible[l:key]
+    function CheerfulInit()
+        " set show
+        let winlist = getwininfo()
+        for [kc, vc] in items(g:cheerful_set_name)
+            let g:cheerful_set_show[kc] = 0
+            for v in winlist
+                let bufnr = v.bufnr
+                let winnr = v.winnr
+                let winid = v.winid
+                let filetype = getbufvar(v.bufnr, '&filetype')
+                let buftype = getbufvar(v.bufnr, '&buftype')
+                let bufname = bufname(v.bufnr)
+                if filetype == g:cheerful_set_type[kc]
+                    let g:cheerful_set_show[kc] = 1
+                endif
+            endfor
+        endfor
+        " set filetype
+        let winlist = getwininfo()
+        for [kc, vc] in items(g:cheerful_set_name)
+            if !empty(g:cheerful_set_buff[kc])
+                for v in winlist
+                    let bufnr = v.bufnr
+                    let winnr = v.winnr
+                    let winid = v.winid
+                    let filetype = getbufvar(v.bufnr, '&filetype')
+                    let buftype = getbufvar(v.bufnr, '&buftype')
+                    let bufname = bufname(v.bufnr)
+                    if bufname == g:cheerful_set_buff[kc]
+                        call win_execute(winid, 'set filetype='.g:cheerful_set_type[kc])
+                    endif
+                endfor
+            endif
+        endfor
+        " set statusline
+        let winlist = getwininfo()
+        for v in winlist
+            let bufnr = v.bufnr
+            let winnr = v.winnr
+            let winid = v.winid
+            let filetype = getbufvar(v.bufnr, '&filetype')
+            let buftype = getbufvar(v.bufnr, '&buftype')
+            let bufname = bufname(v.bufnr)
+            let ishave = 0
+            for [kc, vc] in items(g:cheerful_set_name)
+                if g:cheerful_set_type[kc] == filetype
+                    let ishave = 1
                     break
                 endif
             endfor
-        endif
-        if l:winid_original != s:ReturnWinid()
-            call win_gotoid(l:winid_original)
-        endif
-        return 1
+            if ishave == 1
+                call win_execute(winid, 'call StatuslineDetect(g:cheerful_set_name[kc])')
+            elseif !empty(buftype)
+                call win_execute(winid, 'call StatuslineDetect("Other")')
+            else
+                let g:cheerful_set_main = winid
+                call win_execute(winid, 'call StatuslineDetect("Main")')
+            endif
+        endfor
     endfunction
 
-    function s:ToolVisible(name)
-        let l:winid_original = s:ReturnWinid()
-        let l:result_check = 0
-        if has_key(g:cheerful_set_type, a:name)
-            if has_key(g:cheerful_neatly_tool_visible, g:cheerful_set_type[a:name])
-                if win_gotoid(g:cheerful_neatly_tool_visible[g:cheerful_set_type[a:name]]) == 1
-                    let l:result_check = 1
-                endif
-            endif
-        endif
-        if l:result_check != 1
-            if l:winid_original != s:ReturnWinid()
+    " --------------------------------------------------
+    " CheerfulResize
+    " --------------------------------------------------
+    function CheerfulResize()
+        call CheerfulInit()
+        if g:cheerful_set_main > 0
+            let l:winid_original = bufwinid('%')
+            " check layout
+            let winlist = getwininfo()
+            for [kc, vc] in items(g:cheerful_set_name)
+                for v in winlist
+                    let bufnr = v.bufnr
+                    let winnr = v.winnr
+                    let winid = v.winid
+                    let filetype = getbufvar(v.bufnr, '&filetype')
+                    let buftype = getbufvar(v.bufnr, '&buftype')
+                    let bufname = bufname(v.bufnr)
+                    if filetype == g:cheerful_set_type[kc] && g:cheerful_set_part[kc] == 'info'
+                        call win_execute(winid, 'silent wincmd L')
+                        break
+                    endif
+                endfor
+            endfor
+            for [kc, vc] in items(g:cheerful_set_name)
+                for v in winlist
+                    let bufnr = v.bufnr
+                    let winnr = v.winnr
+                    let winid = v.winid
+                    let filetype = getbufvar(v.bufnr, '&filetype')
+                    let buftype = getbufvar(v.bufnr, '&buftype')
+                    let bufname = bufname(v.bufnr)
+                    if filetype == g:cheerful_set_type[kc] && g:cheerful_set_part[kc] == 'output'
+                        call win_execute(winid, 'silent wincmd J')
+                        break
+                    endif
+                endfor
+            endfor
+            for [kc, vc] in items(g:cheerful_set_name)
+                for v in winlist
+                    let bufnr = v.bufnr
+                    let winnr = v.winnr
+                    let winid = v.winid
+                    let filetype = getbufvar(v.bufnr, '&filetype')
+                    let buftype = getbufvar(v.bufnr, '&buftype')
+                    let bufname = bufname(v.bufnr)
+                    if filetype == g:cheerful_set_type[kc] && g:cheerful_set_part[kc] == 'tab'
+                        call win_execute(winid, 'silent wincmd K')
+                        break
+                    endif
+                endfor
+            endfor
+            for [kc, vc] in items(g:cheerful_set_name)
+                for v in winlist
+                    let bufnr = v.bufnr
+                    let winnr = v.winnr
+                    let winid = v.winid
+                    let filetype = getbufvar(v.bufnr, '&filetype')
+                    let buftype = getbufvar(v.bufnr, '&buftype')
+                    let bufname = bufname(v.bufnr)
+                    if filetype == g:cheerful_set_type[kc] && g:cheerful_set_part[kc] == 'tree'
+                        call win_execute(winid, 'silent wincmd H')
+                        break
+                    endif
+                endfor
+            endfor
+            " check size
+            for [kc, vc] in items(g:cheerful_set_name)
+                for v in winlist
+                    let bufnr = v.bufnr
+                    let winnr = v.winnr
+                    let winid = v.winid
+                    let filetype = getbufvar(v.bufnr, '&filetype')
+                    let buftype = getbufvar(v.bufnr, '&buftype')
+                    let bufname = bufname(v.bufnr)
+                    if filetype == g:cheerful_set_type[kc] && g:cheerful_set_part[kc] == 'info'
+                        call win_execute(winid, 'vertical resize '.g:cheerful_set_size[kc])
+                        break
+                    endif
+                endfor
+            endfor
+            for [kc, vc] in items(g:cheerful_set_name)
+                for v in winlist
+                    let bufnr = v.bufnr
+                    let winnr = v.winnr
+                    let winid = v.winid
+                    let filetype = getbufvar(v.bufnr, '&filetype')
+                    let buftype = getbufvar(v.bufnr, '&buftype')
+                    let bufname = bufname(v.bufnr)
+                    if filetype == g:cheerful_set_type[kc] && g:cheerful_set_part[kc] == 'output'
+                        call win_execute(winid, 'resize '.g:cheerful_set_size[kc])
+                        break
+                    endif
+                endfor
+            endfor
+            for [kc, vc] in items(g:cheerful_set_name)
+                for v in winlist
+                    let bufnr = v.bufnr
+                    let winnr = v.winnr
+                    let winid = v.winid
+                    let filetype = getbufvar(v.bufnr, '&filetype')
+                    let buftype = getbufvar(v.bufnr, '&buftype')
+                    let bufname = bufname(v.bufnr)
+                    if filetype == g:cheerful_set_type[kc] && g:cheerful_set_part[kc] == 'tab'
+                        call win_execute(winid, 'resize '.g:cheerful_set_size[kc])
+                        break
+                    endif
+                endfor
+            endfor
+            for [kc, vc] in items(g:cheerful_set_name)
+                for v in winlist
+                    let bufnr = v.bufnr
+                    let winnr = v.winnr
+                    let winid = v.winid
+                    let filetype = getbufvar(v.bufnr, '&filetype')
+                    let buftype = getbufvar(v.bufnr, '&buftype')
+                    let bufname = bufname(v.bufnr)
+                    if filetype == g:cheerful_set_type[kc] && g:cheerful_set_part[kc] == 'tree'
+                        call win_execute(winid, 'vertical resize '.g:cheerful_set_size[kc])
+                        break
+                    endif
+                endfor
+            endfor
+            " fix size
+            for [kc, vc] in items(g:cheerful_set_name)
+                for v in winlist
+                    let bufnr = v.bufnr
+                    let winnr = v.winnr
+                    let winid = v.winid
+                    let filetype = getbufvar(v.bufnr, '&filetype')
+                    let buftype = getbufvar(v.bufnr, '&buftype')
+                    let bufname = bufname(v.bufnr)
+                    if filetype == g:cheerful_set_type[kc] && g:cheerful_set_part[kc] == 'info'
+                        call win_execute(winid, 'vertical resize '.g:cheerful_set_size[kc])
+                        break
+                    endif
+                endfor
+            endfor
+            " back winid
+            if l:winid_original != bufwinid('%')
                 call win_gotoid(l:winid_original)
             endif
         endif
-        return l:result_check
-    endfunction
-
-    function s:EditInside()
-        let l:result_check = 0
-        if count(g:cheerful_neatly_edit_visible, bufwinid('%')) > 0
-            let l:result_check = 1
-        endif
-        return l:result_check
-    endfunction
-
-    function s:WinviewSave(name)
-        let l:result_winview = 0
-        let l:winid_original = s:ReturnWinid()
-        if s:ToolVisible(g:cheerful_set_name[a:name]) == 1
-            let l:result_winview = winsaveview()
-        endif
-        if l:winid_original != s:ReturnWinid()
-            call win_gotoid(l:winid_original)
-        endif
-        return l:result_winview
-    endfunction
-
-    function s:WinviewRestore(name, winview)
-        let l:result_winview = -1
-        let l:winid_original = s:ReturnWinid()
-        if s:ToolVisible(g:cheerful_set_name[a:name]) == 1
-            if !empty(a:winview)
-                let l:result_winview = winrestview(a:winview)
-            endif
-        endif
-        if l:winid_original != s:ReturnWinid()
-            call win_gotoid(l:winid_original)
-        endif
-        return l:result_winview
     endfunction
 
     " --------------------------------------------------
-    " Handle List
+    " CheerfulOperate
     " --------------------------------------------------
-    function s:HandleTool(name, ope)
-        let l:winid_original = s:ReturnWinid()
-
-        call s:ReturnWinlist()
-        call OperateJump()
-        let l:winview_list   = {}
-        for l:item in values(g:cheerful_set_name)
-            let l:winview_list[l:item] = s:WinviewSave(l:item)
-        endfor
-
-        call OperateJump()
-        let l:winid_operate = s:ToolVisible(a:name)
-        if a:ope == 'open'
-            if l:winid_operate != 1
+    function CheerfulOperate(name, ope)
+        call CheerfulInit()
+        if g:cheerful_set_main > 0 && has_key(g:cheerful_set_name, a:name)
+            let l:winid_original = bufwinid('%')
+            " save state
+            let set_show = {}
+            for [kc, vc] in items(g:cheerful_set_show)
+                let set_show[kc] = g:cheerful_set_show[kc]
+            endfor
+            " handle close
+            let winlist = getwininfo()
+            for [kc, vc] in items(g:cheerful_set_name)
+                if !empty(g:cheerful_set_coth[a:name]) && index(g:cheerful_set_coth[a:name], kc) != -1
+                    if set_show[kc] == 1
+                        silent exe g:cheerful_set_close[kc]
+                    endif
+                endif
+            endfor
+            " handle state
+            if a:ope == 'open'
                 silent exe g:cheerful_set_open[a:name]
+            elseif a:ope == 'close'
+                silent exe g:cheerful_set_close[a:name]
             endif
-        elseif a:ope == 'close'
-            if l:winid_operate == 1
-                if g:cheerful_set_close[a:name] == 'close'
-                    silent exe 'close'
+            " handle restore
+            for [kc, vc] in items(g:cheerful_set_name)
+                if !empty(g:cheerful_set_coth[a:name]) && index(g:cheerful_set_coth[a:name], kc) != -1
+                    if set_show[kc] == 1
+                        silent exe g:cheerful_set_open[kc]
+                    endif
+                endif
+            endfor
+            " resize struct
+            call CheerfulResize()
+            " back winid
+            if l:winid_original != bufwinid('%')
+                call win_gotoid(l:winid_original)
+            endif
+        endif
+    endfunction
+
+    " --------------------------------------------------
+    " Cheerful Struct
+    " --------------------------------------------------
+    function CheerfulTree()
+        call CheerfulInit()
+        call win_gotoid(g:cheerful_set_main)
+        " clean other
+        let winlist = getwininfo()
+        for v in winlist
+            let bufnr = v.bufnr
+            let winnr = v.winnr
+            let winid = v.winid
+            let filetype = getbufvar(v.bufnr, '&filetype')
+            let buftype = getbufvar(v.bufnr, '&buftype')
+            let bufname = bufname(v.bufnr)
+            let if_have = 0
+            for [k, v] in items(g:cheerful_set_name)
+                if g:cheerful_set_type[k] == filetype
+                    let if_have = 1
+                    break
+                endif
+            endfor
+            if if_have != 1 && !empty(buftype)
+                call win_execute(winid, 'close')
+            endif
+        endfor
+        " operate win
+        for [k, v] in items(g:cheerful_set_name)
+            if g:cheerful_set_part[k] == 'tree'
+                call CheerfulOperate(k, 'open')
+                break
+            endif
+        endfor
+        for [k, v] in items(g:cheerful_set_name)
+            if g:cheerful_set_part[k] == 'tab'
+                call CheerfulOperate(k, 'open')
+                break
+            endif
+        endfor
+        for [k, v] in items(g:cheerful_set_name)
+            if g:cheerful_set_part[k] == 'output'
+                call CheerfulOperate(k, 'close')
+            endif
+        endfor
+        for [k, v] in items(g:cheerful_set_name)
+            if g:cheerful_set_part[k] == 'info'
+                call CheerfulOperate(k, 'close')
+            endif
+        endfor
+    endfunction
+    function CheerfulOutput()
+        call CheerfulInit()
+        call win_gotoid(g:cheerful_set_main)
+        for [k, v] in items(g:cheerful_set_name)
+            if g:cheerful_set_part[k] == 'output'
+                if g:cheerful_set_show[k] == 0
+                    call CheerfulOperate(k, 'open')
                 else
-                    silent exe g:cheerful_set_close[a:name]
+                    call CheerfulOperate(k, 'close')
                 endif
             endif
-        endif
-
-        call s:ReturnWinlist()
-        call OperateJump()
-        for l:item in values(g:cheerful_set_name)
-            call s:WinviewRestore(l:item, l:winview_list[l:item])
         endfor
-
-        if l:winid_original != s:ReturnWinid()
-            call win_gotoid(l:winid_original)
-        endif
     endfunction
-
-    function s:HandleResize()
-        let l:winid_original = s:ReturnWinid()
-
-        call s:ReturnWinlist()
-
-        if &diff != 1
-
-            call OperateJump()
-            let l:winview_list   = {}
-            for l:item in values(g:cheerful_set_name)
-                let l:winview_list[l:item] = s:WinviewSave(l:item)
-            endfor
-
-            call OperateJump()
-            let l:winid_info_id = 0
-            let l:winid_info_size = 0
-
-            for l:item in values(g:cheerful_set_name)
-                if g:cheerful_set_part[l:item] == 'info'
-                    if s:ToolVisible(l:item) == 1
-                        for l:v in values(g:cheerful_set_name)
-                            if g:cheerful_set_part[l:v] == 'info' && l:v != l:item
-                                call s:HandleTool(l:v,'close')
-                            endif
-                        endfor
-                        exe 'wincmd L'
-                        exe 'vertical resize '.g:cheerful_set_size[l:item]
-                        if g:cheerful_set_nocur[l:item] == 1
-                            setlocal nocursorline
-                            setlocal nocursorcolumn
-                        endif
-                        if g:cheerful_set_stay[l:item] == 1
-                            let l:winid_original = s:ReturnWinid()
-                        endif
-                        let l:winid_info_id = s:ReturnWinid()
-                        let l:winid_info_size = g:cheerful_set_size[l:item]
-                        break
-                    endif
+    function CheerfulInfo()
+        call CheerfulInit()
+        call win_gotoid(g:cheerful_set_main)
+        for [k, v] in items(g:cheerful_set_name)
+            if g:cheerful_set_part[k] == 'info'
+                if g:cheerful_set_show[k] == 0
+                    call CheerfulOperate(k, 'open')
+                else
+                    call CheerfulOperate(k, 'close')
+                endif
+            endif
+        endfor
+    endfunction
+    function CheerfulClear()
+        call CheerfulInit()
+        call win_gotoid(g:cheerful_set_main)
+        " clean other
+        let winlist = getwininfo()
+        for v in winlist
+            let bufnr = v.bufnr
+            let winnr = v.winnr
+            let winid = v.winid
+            let filetype = getbufvar(v.bufnr, '&filetype')
+            let buftype = getbufvar(v.bufnr, '&buftype')
+            let bufname = bufname(v.bufnr)
+            let if_have = 0
+            for [k, v] in items(g:cheerful_set_name)
+                if g:cheerful_set_type[k] == filetype
+                    let if_have = 1
+                    break
                 endif
             endfor
-
-            for l:item in values(g:cheerful_set_name)
-                if g:cheerful_set_part[l:item] == 'tab'
-                    if s:ToolVisible(l:item) == 1
-                        for l:v in values(g:cheerful_set_name)
-                            if g:cheerful_set_part[l:v] == 'tab' && l:v != l:item
-                                call s:HandleTool(l:v,'close')
-                            endif
-                        endfor
-                        exe 'wincmd K'
-                        exe 'resize '.g:cheerful_set_size[l:item]
-                        if g:cheerful_set_nocur[l:item] == 1
-                            setlocal nocursorline
-                            setlocal nocursorcolumn
-                        endif
-                        if g:cheerful_set_stay[l:item] == 1
-                            let l:winid_original = s:ReturnWinid()
-                        endif
-                        break
-                    endif
-                endif
-            endfor
-
-            for l:item in values(g:cheerful_set_name)
-                if g:cheerful_set_part[l:item] == 'debug'
-                    if s:ToolVisible(l:item) == 1
-                        for l:v in values(g:cheerful_set_name)
-                            if g:cheerful_set_part[l:v] == 'debug' && l:v != l:item
-                                call s:HandleTool(l:v,'close')
-                            endif
-                        endfor
-                        exe 'wincmd J'
-                        exe 'resize '.g:cheerful_set_size[l:item]
-                        if g:cheerful_set_nocur[l:item] == 1
-                            setlocal nocursorline
-                            setlocal nocursorcolumn
-                        endif
-                        if g:cheerful_set_stay[l:item] == 1
-                            let l:winid_original = s:ReturnWinid()
-                        endif
-                        break
-                    endif
-                endif
-            endfor
-
-            for l:item in values(g:cheerful_set_name)
-                if g:cheerful_set_part[l:item] == 'tree'
-                    if s:ToolVisible(l:item) == 1
-                        for l:v in values(g:cheerful_set_name)
-                            if g:cheerful_set_part[l:v] == 'tree' && l:v != l:item
-                                call s:HandleTool(l:v,'close')
-                            endif
-                        endfor
-                        exe 'wincmd H'
-                        exe 'vertical resize '.g:cheerful_set_size[l:item]
-                        if g:cheerful_set_nocur[l:item] == 1
-                            setlocal nocursorline
-                            setlocal nocursorcolumn
-                        endif
-                        if g:cheerful_set_stay[l:item] == 1
-                            let l:winid_original = s:ReturnWinid()
-                        endif
-                        if l:winid_info_id > 0
-                            call win_gotoid(l:winid_info_id)
-                            exe 'vertical resize '.l:winid_info_size
-                        endif
-                        break
-                    endif
-                endif
-            endfor
-
-            call OperateJump()
-            for l:item in values(g:cheerful_set_name)
-                call s:WinviewRestore(l:item, l:winview_list[l:item])
-            endfor
-
-        endif
-
-        if l:winid_original != s:ReturnWinid()
-            call win_gotoid(l:winid_original)
-        endif
+            if if_have != 1 && !empty(buftype)
+                call win_execute(winid, 'close')
+            endif
+        endfor
+        " operate win
+        for [k, v] in items(g:cheerful_set_name)
+            if g:cheerful_set_part[k] == 'tree'
+                call CheerfulOperate(k, 'close')
+            endif
+        endfor
+        for [k, v] in items(g:cheerful_set_name)
+            if g:cheerful_set_part[k] == 'tab'
+                call CheerfulOperate(k, 'close')
+            endif
+        endfor
+        for [k, v] in items(g:cheerful_set_name)
+            if g:cheerful_set_part[k] == 'output'
+                call CheerfulOperate(k, 'close')
+            endif
+        endfor
+        for [k, v] in items(g:cheerful_set_name)
+            if g:cheerful_set_part[k] == 'info'
+                call CheerfulOperate(k, 'close')
+            endif
+        endfor
     endfunction
 
     " --------------------------------------------------
-    " Operate List
+    " CheerfulDebug
     " --------------------------------------------------
-    function OperateJump()
-        let l:winid_operate = 0
-        if s:EditInside() != 1
-            let l:winid_operate = win_gotoid(g:cheerful_neatly_winid_main)
-        endif
-        return l:winid_operate
+    function CheerfulDebug()
+        echo printf("= %-8s = %-8s = %-8s = %-16s = %-16s = %-16s", 'bufnr', 'winnr', 'winid', 'filetype', 'buftype', 'bufname')
+        let winlist = getwininfo()
+        for v in winlist
+            let bufnr = v.bufnr
+            let winnr = v.winnr
+            let winid = v.winid
+            let filetype = getbufvar(v.bufnr, '&filetype')
+            let buftype = getbufvar(v.bufnr, '&buftype')
+            let bufname = bufname(v.bufnr)
+            echo printf("> %-8d > %-8d > %-8d > %-16s > %-16s > %-16s", bufnr, winnr, winid, filetype, buftype, bufname)
+        endfor
     endfunction
 
-    function OperateTool(name, ope)
-        if a:ope == 'open'
-            for l:item in values(g:cheerful_set_name)
-                if g:cheerful_set_part[l:item] == g:cheerful_set_part[a:name] && l:item != a:name
-                    call s:HandleTool(l:item, 'close')
-                endif
-            endfor
-            call s:HandleTool(a:name, 'open')
-        elseif a:ope == 'close'
-            call s:HandleTool(a:name, 'close')
-        endif
-        call s:HandleResize()
-    endfunction
-
-    function ResetTree()
-        for l:item in values(g:cheerful_set_name)
-            if g:cheerful_set_part[l:item] == 'tree'
-                call s:HandleTool(l:item, 'open')
-            endif
-        endfor
-        for l:item in values(g:cheerful_set_name)
-            if g:cheerful_set_part[l:item] == 'tab'
-                call s:HandleTool(l:item, 'open')
-            endif
-        endfor
-        for l:item in values(g:cheerful_set_name)
-            if g:cheerful_set_part[l:item] == 'debug'
-                call s:HandleTool(l:item, 'close')
-            endif
-        endfor
-        for l:item in values(g:cheerful_set_name)
-            if g:cheerful_set_part[l:item] == 'info'
-                call s:HandleTool(l:item, 'close')
-            endif
-        endfor
-        call s:HandleResize()
-        call OperateJump()
-    endfunction
-
-    function ResetEdit()
-        for l:item in values(g:cheerful_set_name)
-            if g:cheerful_set_part[l:item] == 'tree'
-                call s:HandleTool(l:item, 'close')
-            endif
-        endfor
-        for l:item in values(g:cheerful_set_name)
-            if g:cheerful_set_part[l:item] == 'tab'
-                call s:HandleTool(l:item, 'open')
-            endif
-        endfor
-        for l:item in values(g:cheerful_set_name)
-            if g:cheerful_set_part[l:item] == 'debug'
-                call s:HandleTool(l:item, 'close')
-            endif
-        endfor
-        for l:item in values(g:cheerful_set_name)
-            if g:cheerful_set_part[l:item] == 'info'
-                call s:HandleTool(l:item, 'close')
-            endif
-        endfor
-        call s:HandleResize()
-        call OperateJump()
-    endfunction
-
-    function ResetDebug()
-        for l:item in values(g:cheerful_set_name)
-            if g:cheerful_set_part[l:item] == 'tree'
-                call s:HandleTool(l:item, 'open')
-            endif
-        endfor
-        for l:item in values(g:cheerful_set_name)
-            if g:cheerful_set_part[l:item] == 'tab'
-                call s:HandleTool(l:item, 'open')
-            endif
-        endfor
-        for l:item in values(g:cheerful_set_name)
-            if g:cheerful_set_part[l:item] == 'debug'
-                call s:HandleTool(l:item, 'open')
-            endif
-        endfor
-        for l:item in values(g:cheerful_set_name)
-            if g:cheerful_set_part[l:item] == 'info'
-                call s:HandleTool(l:item, 'close')
-            endif
-        endfor
-        call s:HandleResize()
-        call OperateJump()
-    endfunction
-
-    " Autocmd
-    " autocmd VimResized,BufWinEnter,BufHidden,BufDelete * call s:HandleResize()
-    autocmd VimEnter * call ResetTree()
+    " --------------------------------------------------
+    " autocmd
+    " --------------------------------------------------
+    " autocmd VimResized,BufWinEnter,BufHidden,BufDelete * call CheerfulResize()
+    autocmd BufEnter,BufWritePost * call CheerfulInit()
+    autocmd VimEnter * call CheerfulTree()
 endif
 
 " ============================================================================
