@@ -23,58 +23,64 @@ let s:save_cpo = &cpoptions
 set cpoptions&vim
 
 " ============================================================================
-" 01: Function for struct keep
-" g:cheerful_neatly_enable = 1
+" cheerful set list
+" ============================================================================
+if !exists('g:cheerful_set_main')
+    let g:cheerful_set_main = 0
+endif
+if !exists('g:cheerful_set_path')
+    let g:cheerful_set_path = ""
+endif
+
+if !exists('g:cheerful_set_name') || empty(g:cheerful_set_name)
+    let g:cheerful_set_name  == {}
+endif
+if !exists('g:cheerful_set_type') || empty(g:cheerful_set_name)
+    let g:cheerful_set_type  == {}
+endif
+if !exists('g:cheerful_set_part') || empty(g:cheerful_set_name)
+    let g:cheerful_set_part  == {}
+endif
+if !exists('g:cheerful_set_buff') || empty(g:cheerful_set_name)
+    let g:cheerful_set_buff  == {}
+endif
+if !exists('g:cheerful_set_stat') || empty(g:cheerful_set_name)
+    let g:cheerful_set_stat  == {}
+endif
+if !exists('g:cheerful_set_nocur') || empty(g:cheerful_set_name)
+    let g:cheerful_set_nocur == {}
+endif
+if !exists('g:cheerful_set_stay') || empty(g:cheerful_set_name)
+    let g:cheerful_set_stay  == {}
+endif
+if !exists('g:cheerful_set_size') || empty(g:cheerful_set_name)
+    let g:cheerful_set_size  == {}
+endif
+if !exists('g:cheerful_set_open') || empty(g:cheerful_set_name)
+    let g:cheerful_set_open  == {}
+endif
+if !exists('g:cheerful_set_close') || empty(g:cheerful_set_name)
+    let g:cheerful_set_close == {}
+endif
+if !exists('g:cheerful_set_show') || empty(g:cheerful_set_name)
+    let g:cheerful_set_show == {}
+endif
+if !exists('g:cheerful_set_coth') || empty(g:cheerful_set_name)
+    let g:cheerful_set_coth == {}
+endif
+
+" ============================================================================
+" 01: cheerful struct keep
+" g:cheerful_struct_enable = 1
 " - Char for String:   `~!@#$%^&+-=()[]{},.;'/:|\"*?<>
 " - Char for Filename: `~!@#$%^&+-=()[]{},.;'/:
 " ============================================================================
-if exists('g:cheerful_neatly_enable') && g:cheerful_neatly_enable == 1
-
-    if !exists('g:cheerful_set_main')
-        let g:cheerful_set_main = 0
-    endif
-
-    if !exists('g:cheerful_set_name') || empty(g:cheerful_set_name)
-        let g:cheerful_set_name  == {}
-    endif
-    if !exists('g:cheerful_set_type') || empty(g:cheerful_set_name)
-        let g:cheerful_set_type  == {}
-    endif
-    if !exists('g:cheerful_set_part') || empty(g:cheerful_set_name)
-        let g:cheerful_set_part  == {}
-    endif
-    if !exists('g:cheerful_set_buff') || empty(g:cheerful_set_name)
-        let g:cheerful_set_buff  == {}
-    endif
-    if !exists('g:cheerful_set_stat') || empty(g:cheerful_set_name)
-        let g:cheerful_set_stat  == {}
-    endif
-    if !exists('g:cheerful_set_nocur') || empty(g:cheerful_set_name)
-        let g:cheerful_set_nocur == {}
-    endif
-    if !exists('g:cheerful_set_stay') || empty(g:cheerful_set_name)
-        let g:cheerful_set_stay  == {}
-    endif
-    if !exists('g:cheerful_set_size') || empty(g:cheerful_set_name)
-        let g:cheerful_set_size  == {}
-    endif
-    if !exists('g:cheerful_set_open') || empty(g:cheerful_set_name)
-        let g:cheerful_set_open  == {}
-    endif
-    if !exists('g:cheerful_set_close') || empty(g:cheerful_set_name)
-        let g:cheerful_set_close == {}
-    endif
-    if !exists('g:cheerful_set_show') || empty(g:cheerful_set_name)
-        let g:cheerful_set_show == {}
-    endif
-    if !exists('g:cheerful_set_coth') || empty(g:cheerful_set_name)
-        let g:cheerful_set_coth == {}
-    endif
+if exists('g:cheerful_struct_enable') && g:cheerful_struct_enable == 1
 
     " --------------------------------------------------
-    " CheerfulInit
+    " CheerfulStructInit
     " --------------------------------------------------
-    function CheerfulInit()
+    function CheerfulStructInit()
         " set show
         let winlist = getwininfo()
         for [kc, vc] in items(g:cheerful_set_name)
@@ -136,10 +142,10 @@ if exists('g:cheerful_neatly_enable') && g:cheerful_neatly_enable == 1
     endfunction
 
     " --------------------------------------------------
-    " CheerfulResize
+    " CheerfulStructResize
     " --------------------------------------------------
-    function CheerfulResize()
-        call CheerfulInit()
+    function CheerfulStructResize()
+        call CheerfulStructInit()
         if g:cheerful_set_main > 0
             let l:winid_original = bufwinid('%')
             " check layout
@@ -280,10 +286,10 @@ if exists('g:cheerful_neatly_enable') && g:cheerful_neatly_enable == 1
     endfunction
 
     " --------------------------------------------------
-    " CheerfulOperate
+    " CheerfulStructOperate
     " --------------------------------------------------
-    function CheerfulOperate(name, ope)
-        call CheerfulInit()
+    function CheerfulStructOperate(name, ope)
+        call CheerfulStructInit()
         if g:cheerful_set_main > 0 && has_key(g:cheerful_set_name, a:name)
             let l:winid_original = bufwinid('%')
             " save state
@@ -315,7 +321,7 @@ if exists('g:cheerful_neatly_enable') && g:cheerful_neatly_enable == 1
                 endif
             endfor
             " resize struct
-            call CheerfulResize()
+            call CheerfulStructResize()
             " back winid
             if l:winid_original != bufwinid('%')
                 call win_gotoid(l:winid_original)
@@ -324,10 +330,10 @@ if exists('g:cheerful_neatly_enable') && g:cheerful_neatly_enable == 1
     endfunction
 
     " --------------------------------------------------
-    " Cheerful Struct
+    " CheerfulStructXXX
     " --------------------------------------------------
-    function CheerfulTree()
-        call CheerfulInit()
+    function CheerfulStructTree()
+        call CheerfulStructInit()
         call win_gotoid(g:cheerful_set_main)
         " clean other
         let winlist = getwininfo()
@@ -352,55 +358,55 @@ if exists('g:cheerful_neatly_enable') && g:cheerful_neatly_enable == 1
         " operate win
         for [k, v] in items(g:cheerful_set_name)
             if g:cheerful_set_part[k] == 'tree'
-                call CheerfulOperate(k, 'open')
+                call CheerfulStructOperate(k, 'open')
                 break
             endif
         endfor
         for [k, v] in items(g:cheerful_set_name)
             if g:cheerful_set_part[k] == 'tab'
-                call CheerfulOperate(k, 'open')
+                call CheerfulStructOperate(k, 'open')
                 break
             endif
         endfor
         for [k, v] in items(g:cheerful_set_name)
             if g:cheerful_set_part[k] == 'output'
-                call CheerfulOperate(k, 'close')
+                call CheerfulStructOperate(k, 'close')
             endif
         endfor
         for [k, v] in items(g:cheerful_set_name)
             if g:cheerful_set_part[k] == 'info'
-                call CheerfulOperate(k, 'close')
+                call CheerfulStructOperate(k, 'close')
             endif
         endfor
     endfunction
-    function CheerfulOutput()
-        call CheerfulInit()
+    function CheerfulStructOutput()
+        call CheerfulStructInit()
         call win_gotoid(g:cheerful_set_main)
         for [k, v] in items(g:cheerful_set_name)
             if g:cheerful_set_part[k] == 'output'
                 if g:cheerful_set_show[k] == 0
-                    call CheerfulOperate(k, 'open')
+                    call CheerfulStructOperate(k, 'open')
                 else
-                    call CheerfulOperate(k, 'close')
+                    call CheerfulStructOperate(k, 'close')
                 endif
             endif
         endfor
     endfunction
-    function CheerfulInfo()
-        call CheerfulInit()
+    function CheerfulStructInfo()
+        call CheerfulStructInit()
         call win_gotoid(g:cheerful_set_main)
         for [k, v] in items(g:cheerful_set_name)
             if g:cheerful_set_part[k] == 'info'
                 if g:cheerful_set_show[k] == 0
-                    call CheerfulOperate(k, 'open')
+                    call CheerfulStructOperate(k, 'open')
                 else
-                    call CheerfulOperate(k, 'close')
+                    call CheerfulStructOperate(k, 'close')
                 endif
             endif
         endfor
     endfunction
-    function CheerfulClear()
-        call CheerfulInit()
+    function CheerfulStructClear()
+        call CheerfulStructInit()
         call win_gotoid(g:cheerful_set_main)
         " clean other
         let winlist = getwininfo()
@@ -425,30 +431,30 @@ if exists('g:cheerful_neatly_enable') && g:cheerful_neatly_enable == 1
         " operate win
         for [k, v] in items(g:cheerful_set_name)
             if g:cheerful_set_part[k] == 'tree'
-                call CheerfulOperate(k, 'close')
+                call CheerfulStructOperate(k, 'close')
             endif
         endfor
         for [k, v] in items(g:cheerful_set_name)
             if g:cheerful_set_part[k] == 'tab'
-                call CheerfulOperate(k, 'close')
+                call CheerfulStructOperate(k, 'open')
             endif
         endfor
         for [k, v] in items(g:cheerful_set_name)
             if g:cheerful_set_part[k] == 'output'
-                call CheerfulOperate(k, 'close')
+                call CheerfulStructOperate(k, 'close')
             endif
         endfor
         for [k, v] in items(g:cheerful_set_name)
             if g:cheerful_set_part[k] == 'info'
-                call CheerfulOperate(k, 'close')
+                call CheerfulStructOperate(k, 'close')
             endif
         endfor
     endfunction
 
     " --------------------------------------------------
-    " CheerfulDebug
+    " CheerfulStructDebug
     " --------------------------------------------------
-    function CheerfulDebug()
+    function CheerfulStructDebug()
         echo printf("= %-8s = %-8s = %-8s = %-16s = %-16s = %-16s", 'bufnr', 'winnr', 'winid', 'filetype', 'buftype', 'bufname')
         let winlist = getwininfo()
         for v in winlist
@@ -463,39 +469,87 @@ if exists('g:cheerful_neatly_enable') && g:cheerful_neatly_enable == 1
     endfunction
 
     " --------------------------------------------------
-    " autocmd
+    " Autocmd
     " --------------------------------------------------
-    " autocmd VimResized,BufWinEnter,BufHidden,BufDelete * call CheerfulResize()
-    autocmd BufEnter,BufWritePost * call CheerfulInit()
-    autocmd VimEnter * call CheerfulTree()
+    " autocmd VimResized,BufWinEnter,BufHidden,BufDelete * call CheerfulStructResize()
+    autocmd BufEnter,BufWritePost * call CheerfulStructInit()
+    autocmd VimEnter * call CheerfulStructTree()
 endif
 
 " ============================================================================
-" 02: Reopen last buffer
+" 02: cheerful reopen last buffer
 " g:cheerful_reopen_enable = 1
-" g:cheerful_reopen_lastplace = 1
-" g:cheerful_reopen_dir = ""
+" g:cheerful_reopen_last = 1
 " ============================================================================
 if exists('g:cheerful_reopen_enable') && g:cheerful_reopen_enable == 1
-    if !exists('g:cheerful_reopen_dir') || g:cheerful_reopen_dir == ""
-        let g:cheerful_reopen_file = $HOME."/.vim/cheerful/session_filelist.vim"
+
+    " --------------------------------------------------
+    " cheerful reopen set
+    " --------------------------------------------------
+    if !exists('g:cheerful_set_path') || g:cheerful_set_path == ""
+        let g:cheerful_reopen_file = $HOME."/.vim/cheerful/reopen_filelist.vim"
     else
-        let g:cheerful_reopen_file = g:cheerful_reopen_dir."/session_filelist.vim"
+        let g:cheerful_reopen_file = g:cheerful_set_path."/reopen_filelist.vim"
     endif
 
-    let g:cheerful_reopen_data     = {}
+    " --------------------------------------------------
+    " cheerful reopen data
+    " --------------------------------------------------
+    let g:cheerful_reopen_data  = {}
 
-    function! s:cheerful_reopen_build_session()
-        autocmd BufLeave * nested call s:cheerful_reopen_build_session_leave()
-        autocmd BufWinEnter * nested call s:cheerful_reopen_build_session_enter()
-        autocmd VimLeavePre * nested call s:cheerful_reopen_build_session_quit()
+    " --------------------------------------------------
+    " cheerful_reopen_build
+    " --------------------------------------------------
+    function! s:cheerful_reopen_build()
+        autocmd BufLeave * nested call s:cheerful_reopen_bufleave()
+        autocmd BufWinEnter * nested call s:cheerful_reopen_winenter()
+        autocmd VimLeavePre * nested call s:cheerful_reopen_leavepre()
     endfunction
 
-    function! s:cheerful_reopen_build_session_leave()
-        if !isdirectory(g:cheerful_reopen_dir)
-            call mkdir(g:cheerful_reopen_dir, 'p', 0777)
+    " --------------------------------------------------
+    " cheerful_reopen_restore
+    " --------------------------------------------------
+    function! s:cheerful_reopen_restore()
+        if !isdirectory(g:cheerful_set_path)
+            call mkdir(g:cheerful_set_path, 'p', 0777)
         endif
+        if argc() == 0 && filereadable(g:cheerful_reopen_file)
+            let l:current_buf = 0
+            let l:current_msg = []
+            let g:cheerful_reopen_data = readfile(g:cheerful_reopen_file)
+            for l:file_list in g:cheerful_reopen_data
+                let l:file_info = split(l:file_list, '*')
+                if exists("l:file_info[0]") && l:file_info[0] != "" && filereadable(l:file_info[0])
+                    silent exe "edit ".l:file_info[0]
+                    if exists('g:cheerful_reopen_last') && g:cheerful_reopen_last == 1
+                        call setpos('.', [0, l:file_info[4] + &scrolloff, l:file_info[3], 0])
+                        exe "normal zt"
+                        call setpos('.', [0, l:file_info[2], l:file_info[3], 0])
+                    endif
+                    if l:file_info[1] == 'c'
+                        let l:current_buf = bufnr('%')
+                        let l:current_msg = l:file_info
+                    endif
+                endif
+            endfor
+            if l:current_buf > 0
+                silent exe "buffer ".l:current_buf
+                if exists('g:cheerful_reopen_last') && g:cheerful_reopen_last == 1
+                    call setpos('.', [0, l:current_msg[4] + &scrolloff, l:current_msg[3], 0])
+                    exe "normal zt"
+                    call setpos('.', [0, l:current_msg[2], l:current_msg[3], 0])
+                endif
+            endif
+        endif
+    endfunction
 
+    " --------------------------------------------------
+    " cheerful_reopen_bufleave
+    " --------------------------------------------------
+    function! s:cheerful_reopen_bufleave()
+        if !isdirectory(g:cheerful_set_path)
+            call mkdir(g:cheerful_set_path, 'p', 0777)
+        endif
         let l:file_msg = {}
         for l:file_list in g:cheerful_reopen_data
             let l:file_info = split(l:file_list, '*')
@@ -525,9 +579,12 @@ if exists('g:cheerful_reopen_enable') && g:cheerful_reopen_enable == 1
         let g:cheerful_reopen_data = l:buflist
     endfunction
 
-    function! s:cheerful_reopen_build_session_enter()
-        if !isdirectory(g:cheerful_reopen_dir)
-            call mkdir(g:cheerful_reopen_dir, 'p', 0777)
+    " --------------------------------------------------
+    " cheerful_reopen_winenter
+    " --------------------------------------------------
+    function! s:cheerful_reopen_winenter()
+        if !isdirectory(g:cheerful_set_path)
+            call mkdir(g:cheerful_set_path, 'p', 0777)
         endif
         let l:current_msg = []
         let l:file_msg = {}
@@ -552,7 +609,7 @@ if exists('g:cheerful_reopen_enable') && g:cheerful_reopen_enable == 1
                 endif
             endif
         endfor
-        if exists('g:cheerful_reopen_lastplace') && g:cheerful_reopen_lastplace == 1
+        if exists('g:cheerful_reopen_last') && g:cheerful_reopen_last == 1
             if !empty(l:current_msg)
                 call setpos('.', [0, l:current_msg[3] + &scrolloff, l:current_msg[2], 0])
                 exe "normal zt"
@@ -563,45 +620,17 @@ if exists('g:cheerful_reopen_enable') && g:cheerful_reopen_enable == 1
         call writefile(g:cheerful_reopen_data, g:cheerful_reopen_file, 'b')
     endfunction
 
-    function! s:cheerful_reopen_build_session_quit()
-        call s:cheerful_reopen_build_session_leave()
+    " --------------------------------------------------
+    " cheerful_reopen_leavepre
+    " --------------------------------------------------
+    function! s:cheerful_reopen_leavepre()
+        call s:cheerful_reopen_bufleave()
         call writefile(g:cheerful_reopen_data, g:cheerful_reopen_file, 'b')
     endfunction
 
-    function! s:cheerful_reopen_restore_session()
-        if argc() == 0 && filereadable(g:cheerful_reopen_file)
-            let l:current_buf = 0
-            let l:current_msg = []
-            let g:cheerful_reopen_data = readfile(g:cheerful_reopen_file)
-            for l:file_list in g:cheerful_reopen_data
-                let l:file_info = split(l:file_list, '*')
-                if exists("l:file_info[0]") && l:file_info[0] != "" && filereadable(l:file_info[0])
-                    silent exe "edit ".l:file_info[0]
-                    if exists('g:cheerful_reopen_lastplace') && g:cheerful_reopen_lastplace == 1
-                        call setpos('.', [0, l:file_info[4] + &scrolloff, l:file_info[3], 0])
-                        exe "normal zt"
-                        call setpos('.', [0, l:file_info[2], l:file_info[3], 0])
-                    endif
-                    if l:file_info[1] == 'c'
-                        let l:current_buf = bufnr('%')
-                        let l:current_msg = l:file_info
-                    endif
-                endif
-            endfor
-            if l:current_buf > 0
-                silent exe "buffer ".l:current_buf
-                if exists('g:cheerful_reopen_lastplace') && g:cheerful_reopen_lastplace == 1
-                    call setpos('.', [0, l:current_msg[4] + &scrolloff, l:current_msg[3], 0])
-                    exe "normal zt"
-                    call setpos('.', [0, l:current_msg[2], l:current_msg[3], 0])
-                endif
-            endif
-        endif
-    endfunction
-
     " Autocmd
-    autocmd VimEnter * nested call s:cheerful_reopen_build_session()
-    autocmd VimEnter * nested call s:cheerful_reopen_restore_session()
+    autocmd VimEnter * nested call s:cheerful_reopen_build()
+    autocmd VimEnter * nested call s:cheerful_reopen_restore()
 endif
 
 " ============================================================================
