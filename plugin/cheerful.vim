@@ -44,14 +44,8 @@ endif
 if !exists('g:cheerful_set_buff') || empty(g:cheerful_set_name)
     let g:cheerful_set_buff  == {}
 endif
-if !exists('g:cheerful_set_stat') || empty(g:cheerful_set_name)
-    let g:cheerful_set_stat  == {}
-endif
-if !exists('g:cheerful_set_nocur') || empty(g:cheerful_set_name)
-    let g:cheerful_set_nocur == {}
-endif
-if !exists('g:cheerful_set_stay') || empty(g:cheerful_set_name)
-    let g:cheerful_set_stay  == {}
+if !exists('g:cheerful_set_coth') || empty(g:cheerful_set_name)
+    let g:cheerful_set_coth == {}
 endif
 if !exists('g:cheerful_set_size') || empty(g:cheerful_set_name)
     let g:cheerful_set_size  == {}
@@ -62,11 +56,11 @@ endif
 if !exists('g:cheerful_set_close') || empty(g:cheerful_set_name)
     let g:cheerful_set_close == {}
 endif
+if !exists('g:cheerful_set_stat') || empty(g:cheerful_set_name)
+    let g:cheerful_set_stat  == {}
+endif
 if !exists('g:cheerful_set_show') || empty(g:cheerful_set_name)
     let g:cheerful_set_show == {}
-endif
-if !exists('g:cheerful_set_coth') || empty(g:cheerful_set_name)
-    let g:cheerful_set_coth == {}
 endif
 
 " ============================================================================
@@ -123,15 +117,17 @@ if exists('g:cheerful_struct_enable') && g:cheerful_struct_enable == 1
             let filetype = getbufvar(v.bufnr, '&filetype')
             let buftype = getbufvar(v.bufnr, '&buftype')
             let bufname = bufname(v.bufnr)
-            let ishave = 0
+            let searchkey = ''
             for [kc, vc] in items(g:cheerful_set_name)
                 if g:cheerful_set_type[kc] == filetype
-                    let ishave = 1
+                    let searchkey = kc
                     break
                 endif
             endfor
-            if ishave == 1
-                call win_execute(winid, 'call StatuslineDetect(g:cheerful_set_name[kc])')
+            if !empty(searchkey)
+                if g:cheerful_set_stat[searchkey] == 1
+                    call win_execute(winid, 'call StatuslineDetect(g:cheerful_set_name[searchkey])')
+                endif
             elseif !empty(buftype)
                 call win_execute(winid, 'call StatuslineDetect("Other")')
             else
