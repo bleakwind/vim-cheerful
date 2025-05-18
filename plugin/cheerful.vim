@@ -33,25 +33,25 @@ if !exists('g:cheerful_set_path')
 endif
 
 if !exists('g:cheerful_set_name') || empty(g:cheerful_set_name)
-    let g:cheerful_set_name  == {}
+    let g:cheerful_set_name == {}
 endif
 if !exists('g:cheerful_set_type') || empty(g:cheerful_set_name)
-    let g:cheerful_set_type  == {}
+    let g:cheerful_set_type == {}
 endif
 if !exists('g:cheerful_set_part') || empty(g:cheerful_set_name)
-    let g:cheerful_set_part  == {}
+    let g:cheerful_set_part == {}
 endif
 if !exists('g:cheerful_set_buff') || empty(g:cheerful_set_name)
-    let g:cheerful_set_buff  == {}
+    let g:cheerful_set_buff == {}
 endif
 if !exists('g:cheerful_set_coth') || empty(g:cheerful_set_name)
     let g:cheerful_set_coth == {}
 endif
 if !exists('g:cheerful_set_size') || empty(g:cheerful_set_name)
-    let g:cheerful_set_size  == {}
+    let g:cheerful_set_size == {}
 endif
 if !exists('g:cheerful_set_open') || empty(g:cheerful_set_name)
-    let g:cheerful_set_open  == {}
+    let g:cheerful_set_open == {}
 endif
 if !exists('g:cheerful_set_clse') || empty(g:cheerful_set_name)
     let g:cheerful_set_clse == {}
@@ -60,7 +60,7 @@ if !exists('g:cheerful_set_nohi') || empty(g:cheerful_set_name)
     let g:cheerful_set_nohi == {}
 endif
 if !exists('g:cheerful_set_stat') || empty(g:cheerful_set_name)
-    let g:cheerful_set_stat  == {}
+    let g:cheerful_set_stat == {}
 endif
 if !exists('g:cheerful_set_show') || empty(g:cheerful_set_name)
     let g:cheerful_set_show == {}
