@@ -53,8 +53,11 @@ endif
 if !exists('g:cheerful_set_open') || empty(g:cheerful_set_name)
     let g:cheerful_set_open  == {}
 endif
-if !exists('g:cheerful_set_close') || empty(g:cheerful_set_name)
-    let g:cheerful_set_close == {}
+if !exists('g:cheerful_set_clse') || empty(g:cheerful_set_name)
+    let g:cheerful_set_clse == {}
+endif
+if !exists('g:cheerful_set_nohi') || empty(g:cheerful_set_name)
+    let g:cheerful_set_nohi == {}
 endif
 if !exists('g:cheerful_set_stat') || empty(g:cheerful_set_name)
     let g:cheerful_set_stat  == {}
@@ -156,6 +159,10 @@ if exists('g:cheerful_struct_enable') && g:cheerful_struct_enable == 1
                     let bufname = bufname(v.bufnr)
                     if filetype == g:cheerful_set_type[kc] && g:cheerful_set_part[kc] == 'info'
                         call win_execute(winid, 'silent wincmd L')
+                        if g:cheerful_set_nohi[kc] == 1
+                            call win_execute(winid, 'setlocal nocursorline')
+                            call win_execute(winid, 'setlocal nocursorcolumn')
+                        endif
                         break
                     endif
                 endfor
@@ -170,6 +177,10 @@ if exists('g:cheerful_struct_enable') && g:cheerful_struct_enable == 1
                     let bufname = bufname(v.bufnr)
                     if filetype == g:cheerful_set_type[kc] && g:cheerful_set_part[kc] == 'output'
                         call win_execute(winid, 'silent wincmd J')
+                        if g:cheerful_set_nohi[kc] == 1
+                            call win_execute(winid, 'setlocal nocursorline')
+                            call win_execute(winid, 'setlocal nocursorcolumn')
+                        endif
                         break
                     endif
                 endfor
@@ -184,6 +195,10 @@ if exists('g:cheerful_struct_enable') && g:cheerful_struct_enable == 1
                     let bufname = bufname(v.bufnr)
                     if filetype == g:cheerful_set_type[kc] && g:cheerful_set_part[kc] == 'tab'
                         call win_execute(winid, 'silent wincmd K')
+                        if g:cheerful_set_nohi[kc] == 1
+                            call win_execute(winid, 'setlocal nocursorline')
+                            call win_execute(winid, 'setlocal nocursorcolumn')
+                        endif
                         break
                     endif
                 endfor
@@ -198,6 +213,10 @@ if exists('g:cheerful_struct_enable') && g:cheerful_struct_enable == 1
                     let bufname = bufname(v.bufnr)
                     if filetype == g:cheerful_set_type[kc] && g:cheerful_set_part[kc] == 'tree'
                         call win_execute(winid, 'silent wincmd H')
+                        if g:cheerful_set_nohi[kc] == 1
+                            call win_execute(winid, 'setlocal nocursorline')
+                            call win_execute(winid, 'setlocal nocursorcolumn')
+                        endif
                         break
                     endif
                 endfor
@@ -298,7 +317,7 @@ if exists('g:cheerful_struct_enable') && g:cheerful_struct_enable == 1
             for [kc, vc] in items(g:cheerful_set_name)
                 if !empty(g:cheerful_set_coth[a:name]) && index(g:cheerful_set_coth[a:name], kc) != -1
                     if set_show[kc] == 1
-                        silent exe g:cheerful_set_close[kc]
+                        silent exe g:cheerful_set_clse[kc]
                     endif
                 endif
             endfor
@@ -306,7 +325,7 @@ if exists('g:cheerful_struct_enable') && g:cheerful_struct_enable == 1
             if a:ope == 'open'
                 silent exe g:cheerful_set_open[a:name]
             elseif a:ope == 'close'
-                silent exe g:cheerful_set_close[a:name]
+                silent exe g:cheerful_set_clse[a:name]
             endif
             " handle restore
             for [kc, vc] in items(g:cheerful_set_name)
