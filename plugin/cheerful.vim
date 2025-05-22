@@ -23,7 +23,7 @@ let s:save_cpo = &cpoptions
 set cpoptions&vim
 
 " ============================================================================
-" cheerful set list
+" setting list
 " ============================================================================
 if !exists('g:cheerful_set_main')
     let g:cheerful_set_main = 0
