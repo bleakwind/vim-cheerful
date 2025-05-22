@@ -488,6 +488,7 @@ if exists('g:cheerful_struct_enable') && g:cheerful_struct_enable == 1
     " --------------------------------------------------
     " autocmd VimResized,BufWinEnter,BufHidden,BufDelete * call CheerfulStructResize()
     autocmd BufEnter,BufWritePost * call CheerfulStructInit()
+    autocmd VimResized * call CheerfulStructResize()
     autocmd VimEnter * call CheerfulStructTree()
 endif
 
