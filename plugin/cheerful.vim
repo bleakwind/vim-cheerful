@@ -44,7 +44,6 @@ let g:cheerful_struct_mainwin       = 0
 " 02: cheerful_reopen setting
 " ============================================================================
 let g:cheerful_reopen_enabled       = get(g:, 'cheerful_reopen_enabled', 0)
-let g:cheerful_reopen_lastfile      = get(g:, 'cheerful_reopen_lastfile', 0)
 let g:cheerful_reopen_setpath       = get(g:, 'cheerful_reopen_setpath', '')
 
 let g:cheerful_reopen_data          = {}
@@ -499,10 +498,59 @@ if exists('g:cheerful_reopen_enabled') && g:cheerful_reopen_enabled == 1
     " g:cheerful_reopen_file
     " --------------------------------------------------
     if !exists('g:cheerful_reopen_setpath') || g:cheerful_reopen_setpath == ""
-        let g:cheerful_reopen_file = $HOME."/.vim/cheerful/reopen_filelist.vim"
+        let g:cheerful_reopen_file = $HOME."/.vim/cheerful/reopen_filelist"
     else
-        let g:cheerful_reopen_file = g:cheerful_reopen_setpath."/reopen_filelist.vim"
+        let g:cheerful_reopen_file = g:cheerful_reopen_setpath."/reopen_filelist"
     endif
+
+    " --------------------------------------------------
+    " cheerful#ReopenBuild
+    " --------------------------------------------------
+    function! cheerful#ReopenBuild(buf)
+        if !isdirectory(g:cheerful_reopen_setpath)
+            call mkdir(g:cheerful_reopen_setpath, 'p', 0777)
+        endif
+        if filereadable(g:cheerful_reopen_file)
+            let savelist = []
+            let bufname = fnamemodify(bufname(a:buf), ':p')
+            let buflist = getbufinfo({'buflisted':1})
+            let bnrlist = map(copy(buflist), 'v:val.bufnr')
+            if index(bnrlist, a:buf) != -1
+                for v in buflist
+                    if !empty(v.name)
+                        if v.name == bufname
+                            call add(savelist, v.name."*C*1*1*1")
+                        else
+                            call add(savelist, v.name."*X*1*1*1")
+                        endif
+                    endif
+                endfor
+                let g:cheerful_reopen_data = savelist
+                call writefile(g:cheerful_reopen_data, g:cheerful_reopen_file, 'b')
+            endif
+        endif
+    endfunction
+
+    " --------------------------------------------------
+    " cheerful#ReopenClose
+    " --------------------------------------------------
+    function! cheerful#ReopenClose(buf)
+        if !isdirectory(g:cheerful_reopen_setpath)
+            call mkdir(g:cheerful_reopen_setpath, 'p', 0777)
+        endif
+        if filereadable(g:cheerful_reopen_file)
+            let savelist = []
+            let g:cheerful_reopen_data = readfile(g:cheerful_reopen_file)
+            for v in g:cheerful_reopen_data
+                let rec = split(v, '*')
+                if (rec[0] != a:buf)
+                    call add(savelist, rec[0]."*X*".rec[2]."*".rec[3]."*".rec[4]."")
+                endif
+            endfor
+            let g:cheerful_reopen_data = savelist
+            call writefile(g:cheerful_reopen_data, g:cheerful_reopen_file, 'b')
+        endif
+    endfunction
 
     " --------------------------------------------------
     " cheerful#ReopenRestore
@@ -511,130 +559,33 @@ if exists('g:cheerful_reopen_enabled') && g:cheerful_reopen_enabled == 1
         if !isdirectory(g:cheerful_reopen_setpath)
             call mkdir(g:cheerful_reopen_setpath, 'p', 0777)
         endif
-        if argc() == 0 && filereadable(g:cheerful_reopen_file)
-            let l:current_buf = 0
-            let l:current_msg = []
+        if filereadable(g:cheerful_reopen_file)
+            let savelist = []
+            let currfile = ''
             let g:cheerful_reopen_data = readfile(g:cheerful_reopen_file)
-            for l:file_list in g:cheerful_reopen_data
-                let l:file_info = split(l:file_list, '*')
-                if exists("l:file_info[0]") && l:file_info[0] != "" && filereadable(l:file_info[0])
-                    silent exe "edit ".l:file_info[0]
-                    if exists('g:cheerful_reopen_lastfile') && g:cheerful_reopen_lastfile == 1
-                        call setpos('.', [0, l:file_info[4] + &scrolloff, l:file_info[3], 0])
-                        exe "normal zt"
-                        call setpos('.', [0, l:file_info[2], l:file_info[3], 0])
-                    endif
-                    if l:file_info[1] == 'c'
-                        let l:current_buf = bufnr('%')
-                        let l:current_msg = l:file_info
+            for v in g:cheerful_reopen_data
+                let rec = split(v, '*')
+                if exists("rec[0]") && rec[0] != "" && filereadable(rec[0])
+                    silent exe "edit ".rec[0]
+                    if rec[1] == 'C'
+                        let currfile = rec[0]
                     endif
                 endif
             endfor
-            if l:current_buf > 0
-                silent exe "buffer ".l:current_buf
-                if exists('g:cheerful_reopen_lastfile') && g:cheerful_reopen_lastfile == 1
-                    call setpos('.', [0, l:current_msg[4] + &scrolloff, l:current_msg[3], 0])
-                    exe "normal zt"
-                    call setpos('.', [0, l:current_msg[2], l:current_msg[3], 0])
-                endif
+            if !empty(currfile)
+                silent exe "edit ".currfile
             endif
         endif
     endfunction
 
     " --------------------------------------------------
-    " cheerful#ReopenBufleave
+    " cheerful#ReopenBldcmd
     " --------------------------------------------------
-    function! cheerful#ReopenBufleave()
-        if !isdirectory(g:cheerful_reopen_setpath)
-            call mkdir(g:cheerful_reopen_setpath, 'p', 0777)
-        endif
-        let l:file_msg = {}
-        for l:file_list in g:cheerful_reopen_data
-            let l:file_info = split(l:file_list, '*')
-            if len(l:file_info) == 5
-                let l:file_msg[l:file_info[0]] = [l:file_info[1], l:file_info[2], l:file_info[3], l:file_info[4]]
-            endif
-        endfor
-        let l:current_line    = line(".")
-        let l:current_col     = col(".")
-        let l:win_pos         = winline()
-        let l:win_top         = l:current_line - l:win_pos + 1
-        let l:current_file    = bufname()
-        if has_key(l:file_msg, l:current_file)
-            let l:file_msg[l:current_file] = ["c", l:current_line, l:current_col, l:win_top]
-        endif
-
-        let l:buflist = []
-        for l:file_list in getbufinfo({'buflisted':1})
-            if l:file_list.name != "" && filereadable(l:file_list.name)
-                let l:this_msg = ["x", "1", "1", "1"]
-                if has_key(l:file_msg, l:file_list.name)
-                    let l:this_msg = l:file_msg[l:file_list.name]
-                endif
-                call add(l:buflist, l:file_list.name."*".l:this_msg[0]."*".l:this_msg[1]."*".l:this_msg[2]."*".l:this_msg[3])
-            endif
-        endfor
-        let g:cheerful_reopen_data = l:buflist
-    endfunction
-
-    " --------------------------------------------------
-    " cheerful#ReopenWinenter
-    " --------------------------------------------------
-    function! cheerful#ReopenWinenter()
-        if !isdirectory(g:cheerful_reopen_setpath)
-            call mkdir(g:cheerful_reopen_setpath, 'p', 0777)
-        endif
-        let l:current_msg = []
-        let l:file_msg = {}
-        for l:file_list in g:cheerful_reopen_data
-            let l:file_info = split(l:file_list, '*')
-            if len(l:file_info) == 5
-                let l:file_msg[l:file_info[0]] = [l:file_info[1], l:file_info[2], l:file_info[3], l:file_info[4]]
-            endif
-        endfor
-        let l:buflist = []
-        for l:file_list in getbufinfo({'buflisted':1})
-            if l:file_list.name != "" && filereadable(l:file_list.name)
-                let l:this_msg = ["x", "1", "1", "1"]
-                if has_key(l:file_msg, l:file_list.name)
-                    let l:this_msg = l:file_msg[l:file_list.name]
-                endif
-                if l:file_list.bufnr == bufnr('%')
-                    let l:current_msg = l:this_msg
-                    call add(l:buflist, l:file_list.name."*c*".l:this_msg[1]."*".l:this_msg[2]."*".l:this_msg[3])
-                else
-                    call add(l:buflist, l:file_list.name."*x*".l:this_msg[1]."*".l:this_msg[2]."*".l:this_msg[3])
-                endif
-            endif
-        endfor
-        if exists('g:cheerful_reopen_lastfile') && g:cheerful_reopen_lastfile == 1
-            if !empty(l:current_msg)
-                call setpos('.', [0, l:current_msg[3] + &scrolloff, l:current_msg[2], 0])
-                exe "normal zt"
-                call setpos('.', [0, l:current_msg[1], l:current_msg[2], 0])
-            endif
-        endif
-        let g:cheerful_reopen_data = l:buflist
-        call writefile(g:cheerful_reopen_data, g:cheerful_reopen_file, 'b')
-    endfunction
-
-    " --------------------------------------------------
-    " cheerful#ReopenLeavepre
-    " --------------------------------------------------
-    function! cheerful#ReopenLeavepre()
-        call cheerful#ReopenBufleave()
-        call writefile(g:cheerful_reopen_data, g:cheerful_reopen_file, 'b')
-    endfunction
-
-    " --------------------------------------------------
-    " cheerful#ReopenBuild
-    " --------------------------------------------------
-    function! cheerful#ReopenBuild()
-        augroup CheerfulCmdReopenBuild
+    function! cheerful#ReopenBldcmd()
+        augroup CheerfulCmdReopenBldcmd
             autocmd!
-            autocmd BufLeave * nested call cheerful#ReopenBufleave()
-            autocmd BufWinEnter * nested call cheerful#ReopenWinenter()
-            autocmd VimLeavePre * nested call cheerful#ReopenLeavepre()
+            autocmd BufAdd,BufEnter * nested call cheerful#ReopenBuild(str2nr(expand('<abuf>')))
+            autocmd BufDelete * nested call cheerful#ReopenClose(expand('<afile>:p'))
         augroup END
     endfunction
 
@@ -643,7 +594,7 @@ if exists('g:cheerful_reopen_enabled') && g:cheerful_reopen_enabled == 1
     " --------------------------------------------------
     augroup CheerfulCmdReopen
         autocmd!
-        autocmd VimEnter * nested call cheerful#ReopenBuild()
+        autocmd VimEnter * nested call cheerful#ReopenBldcmd()
         autocmd VimEnter * nested call cheerful#ReopenRestore()
     augroup END
 endif
