@@ -40,6 +40,16 @@ let g:cheerful_struct_setshow       = get(g:, 'cheerful_struct_setshow', {})
 
 let g:cheerful_struct_mainwin       = 0
 
+if !hlexists('SpecialcolorMatchtag') | highlight default link StatusLine_0 StatusLine | endif
+if !hlexists('SpecialcolorMatchtag') | highlight default StatusLine_1 ctermfg=Green     ctermbg=DarkGreen cterm=NONE guifg=#A3D97D guibg=#467623 gui=NONE | endif
+if !hlexists('SpecialcolorMatchtag') | highlight default StatusLine_2 ctermfg=Black     ctermbg=DarkGray  cterm=NONE guifg=#59647A guibg=#171c22 gui=NONE | endif
+if !hlexists('SpecialcolorMatchtag') | highlight default StatusLine_3 ctermfg=DarkGreen ctermbg=Gray      cterm=NONE guifg=#006400 guibg=#1D2228 gui=NONE | endif
+if !hlexists('SpecialcolorMatchtag') | highlight default StatusLine_4 ctermfg=Blue      ctermbg=LightGray cterm=NONE guifg=#1E5791 guibg=#21252b gui=NONE | endif
+if !hlexists('SpecialcolorMatchtag') | highlight default StatusLine_5 ctermfg=Red       ctermbg=LightGray cterm=NONE guifg=#A2000C guibg=#171C22 gui=NONE | endif
+if !hlexists('SpecialcolorMatchtag') | highlight default StatusLine_6 ctermfg=DarkGreen ctermbg=LightGray cterm=NONE guifg=#006400 guibg=#171C22 gui=NONE | endif
+if !hlexists('SpecialcolorMatchtag') | highlight default StatusLine_7 ctermfg=Blue      ctermbg=LightGray cterm=NONE guifg=#1E5791 guibg=#171C22 gui=NONE | endif
+if !hlexists('SpecialcolorMatchtag') | highlight default StatusLine_8 ctermfg=Red       ctermbg=LightGray cterm=NONE guifg=#A2000C guibg=#171C22 gui=NONE | endif
+
 " ============================================================================
 " 02: cheerful_reopen setting
 " ============================================================================
@@ -61,65 +71,151 @@ if exists('g:cheerful_struct_enabled') && g:cheerful_struct_enabled == 1
     " --------------------------------------------------
     function cheerful#StructInit()
         " set show
-        let winlist = getwininfo()
+        let l:winlist = getwininfo()
         for [kc, vc] in items(g:cheerful_struct_setname)
             let g:cheerful_struct_setshow[kc] = 0
-            for v in winlist
-                let bufnr = v.bufnr
-                let winnr = v.winnr
-                let winid = v.winid
-                let filetype = getbufvar(v.bufnr, '&filetype')
-                let buftype = getbufvar(v.bufnr, '&buftype')
-                let bufname = bufname(v.bufnr)
-                if filetype == g:cheerful_struct_settype[kc]
+            for il in l:winlist
+                let l:bufnr = il.bufnr
+                let l:winnr = il.winnr
+                let l:winid = il.winid
+                let l:filetype = getbufvar(il.bufnr, '&filetype')
+                let l:buftype = getbufvar(il.bufnr, '&buftype')
+                let l:bufname = bufname(il.bufnr)
+                if l:filetype == g:cheerful_struct_settype[kc]
                     let g:cheerful_struct_setshow[kc] = 1
                 endif
             endfor
         endfor
         " set filetype
-        let winlist = getwininfo()
+        let l:winlist = getwininfo()
         for [kc, vc] in items(g:cheerful_struct_setname)
             if !empty(g:cheerful_struct_setbuff[kc])
-                for v in winlist
-                    let bufnr = v.bufnr
-                    let winnr = v.winnr
-                    let winid = v.winid
-                    let filetype = getbufvar(v.bufnr, '&filetype')
-                    let buftype = getbufvar(v.bufnr, '&buftype')
-                    let bufname = bufname(v.bufnr)
-                    if bufname == g:cheerful_struct_setbuff[kc]
-                        call win_execute(winid, 'set filetype='.g:cheerful_struct_settype[kc])
+                for il in l:winlist
+                    let l:bufnr = il.bufnr
+                    let l:winnr = il.winnr
+                    let l:winid = il.winid
+                    let l:filetype = getbufvar(il.bufnr, '&filetype')
+                    let l:buftype = getbufvar(il.bufnr, '&buftype')
+                    let l:bufname = bufname(il.bufnr)
+                    if l:bufname == g:cheerful_struct_setbuff[kc]
+                        call win_execute(l:winid, 'set filetype='.g:cheerful_struct_settype[kc])
                     endif
                 endfor
             endif
         endfor
         " set statusline
-        let winlist = getwininfo()
-        for v in winlist
-            let bufnr = v.bufnr
-            let winnr = v.winnr
-            let winid = v.winid
-            let filetype = getbufvar(v.bufnr, '&filetype')
-            let buftype = getbufvar(v.bufnr, '&buftype')
-            let bufname = bufname(v.bufnr)
-            let searchkey = ''
+        let l:winlist = getwininfo()
+        for il in l:winlist
+            let l:bufnr = il.bufnr
+            let l:winnr = il.winnr
+            let l:winid = il.winid
+            let l:filetype = getbufvar(il.bufnr, '&filetype')
+            let l:buftype = getbufvar(il.bufnr, '&buftype')
+            let l:bufname = bufname(il.bufnr)
+            let l:searchkey = ''
             for [kc, vc] in items(g:cheerful_struct_setname)
-                if g:cheerful_struct_settype[kc] == filetype
-                    let searchkey = kc
+                if g:cheerful_struct_settype[kc] == l:filetype
+                    let l:searchkey = kc
                     break
                 endif
             endfor
-            if !empty(searchkey)
-                if g:cheerful_struct_setstat[searchkey] == 1
-                    call win_execute(winid, 'call StatuslineDetect(g:cheerful_struct_setname[searchkey])')
+            if !empty(l:searchkey)
+                if g:cheerful_struct_setstat[l:searchkey] == 1
+                    call win_execute(l:winid, 'call cheerful#StructStatusline(g:cheerful_struct_setpart[l:searchkey])')
                 endif
-            elseif !empty(buftype)
-                call win_execute(winid, 'call StatuslineDetect("Other")')
+            elseif !empty(l:buftype)
+                call win_execute(l:winid, 'call cheerful#StructStatusline("other")')
             else
-                let g:cheerful_struct_mainwin = winid
-                call win_execute(winid, 'call StatuslineDetect("Main")')
+                let g:cheerful_struct_mainwin = l:winid
+                call win_execute(l:winid, 'call cheerful#StructStatusline("main")')
             endif
         endfor
+    endfunction
+
+    " --------------------------------------------------
+    " cheerful#StructStatusline
+    " --------------------------------------------------
+    function! cheerful#StructStatusline(...)
+        let l:stacon = exists('a:1') ? a:1 : ''
+        if (l:stacon == 'tree')
+            setlocal  statusline=%#StatusLine_0#
+            setlocal statusline+=%#StatusLine_0#[%{cheerful#StructStatusname()}]%#StatusLine_0#
+            setlocal statusline+=%#StatusLine_0#%<
+
+            setlocal statusline+=%#StatusLine_0#\ %=\ %#StatusLine_0#
+            setlocal statusline+=%#StatusLine_0#\ %5.P\ %#StatusLine_0#
+            setlocal statusline+=%#StatusLine_0#
+        elseif (l:stacon == 'tab')
+            setlocal  statusline=%#StatusLine_0#
+            setlocal statusline+=%#StatusLine_0#[%{cheerful#StructStatusname()}]%#StatusLine_0#
+            setlocal statusline+=%#StatusLine_0#%<
+
+            setlocal statusline+=%#StatusLine_7#\ [*:%{len(filter(range(1,bufnr('$')),'buflisted(v:val)'))}]%#StatusLine_7#
+            setlocal statusline+=%#StatusLine_8#%{len(filter(range(1,bufnr('$')),'getbufvar(v:val,''&modified'')'))>0?'\ [+:'.len(filter(range(1,bufnr('$')),'getbufvar(v:val,''&modified'')')).']':''}%#StatusLine_8#
+
+            setlocal statusline+=%#StatusLine_0#\ %=\ %#StatusLine_0#
+            setlocal statusline+=%#StatusLine_0#\ %5.P\ %#StatusLine_0#
+            setlocal statusline+=%#StatusLine_0#
+        elseif (l:stacon == 'output')
+            setlocal  statusline=%#StatusLine_0#
+            setlocal statusline+=%#StatusLine_0#[%{cheerful#StructStatusname()}]%#StatusLine_0#
+            setlocal statusline+=%#StatusLine_0#%<
+
+            setlocal statusline+=%#StatusLine_7#%{exists('w:quickfix_title')?'\ ['.w:quickfix_title.']':''}%#StatusLine_7#
+
+            setlocal statusline+=%#StatusLine_0#\ %=\ %#StatusLine_0#
+            setlocal statusline+=%#StatusLine_0#\ %5.P\ %#StatusLine_0#
+            setlocal statusline+=%#StatusLine_0#
+        elseif (l:stacon == 'info')
+            setlocal  statusline=%#StatusLine_0#
+            setlocal statusline+=%#StatusLine_0#[%{cheerful#StructStatusname()}]%#StatusLine_0#
+            setlocal statusline+=%#StatusLine_0#%<
+
+            setlocal statusline+=%#StatusLine_0#\ %=\ %#StatusLine_0#
+            setlocal statusline+=%#StatusLine_0#\ %5.P\ %#StatusLine_0#
+            setlocal statusline+=%#StatusLine_0#
+        elseif (l:stacon == 'other')
+            setlocal  statusline=%#StatusLine_0#
+            setlocal statusline+=%#StatusLine_2#%F%#StatusLine_2#
+            setlocal statusline+=%#StatusLine_0#%<
+
+            setlocal statusline+=%#StatusLine_0#\ %=\ %#StatusLine_0#
+            setlocal statusline+=%#StatusLine_0#\ %12.(%l,%c%V%)\ %#StatusLine_0#
+            setlocal statusline+=%#StatusLine_0#\ %5.P\ %#StatusLine_0#
+            setlocal statusline+=%#StatusLine_0#
+        elseif (l:stacon == 'main')
+            setlocal  statusline=%#StatusLine_0#
+            setlocal statusline+=%#StatusLine_1#\ %{(has_key(g:set_status_list['modelist'],mode())?g:set_status_list['modelist'][mode()]:mode())}\ %#StatusLine_1#
+            setlocal statusline+=%#StatusLine_2#\ %F\ %#StatusLine_2#
+            setlocal statusline+=%#StatusLine_0#%<
+
+            setlocal statusline+=%#StatusLine_3#\ %{(!empty(&filetype)?&filetype:'unkonw')}\ %#StatusLine_3#
+            setlocal statusline+=%#StatusLine_4#\ %{(&fileencoding).(&bomb?',BOM':'').(':'.&fileformat)}\ %#StatusLine_4#
+            setlocal statusline+=%#StatusLine_5#\ %r%m\ %#StatusLine_5#
+
+            setlocal statusline+=%#StatusLine_0#\ %=\ %#StatusLine_0#
+            setlocal statusline+=%#StatusLine_0#\ %([%b\ 0x%B]%)\ %#StatusLine_0#
+            setlocal statusline+=%#StatusLine_0#\ %12.(%l,%c%V%)\ %#StatusLine_0#
+            setlocal statusline+=%#StatusLine_0#\ %5.P\ %#StatusLine_0#
+            setlocal statusline+=%#StatusLine_0#
+        endif
+        return &statusline
+    endfunction
+
+    " --------------------------------------------------
+    " cheerful#StructStatusname
+    " --------------------------------------------------
+    function! cheerful#StructStatusname(...)
+        let l:filetype = getbufvar(bufnr('%'), '&filetype')
+        let l:buftype = getbufvar(bufnr('%'), '&buftype')
+        let l:staname = l:filetype
+        for [kc, vc] in items(g:cheerful_struct_setname)
+            if !empty(g:cheerful_struct_settype[kc]) && !empty(l:buftype) && g:cheerful_struct_settype[kc] == l:filetype
+                let l:staname = g:cheerful_struct_setname[kc]
+                break
+            endif
+        endfor
+        return l:staname
     endfunction
 
     " --------------------------------------------------
@@ -130,74 +226,74 @@ if exists('g:cheerful_struct_enabled') && g:cheerful_struct_enabled == 1
         if g:cheerful_struct_mainwin > 0
             let l:winid_original = bufwinid('%')
             " check layout
-            let winlist = getwininfo()
+            let l:winlist = getwininfo()
             for [kc, vc] in items(g:cheerful_struct_setname)
-                for v in winlist
-                    let bufnr = v.bufnr
-                    let winnr = v.winnr
-                    let winid = v.winid
-                    let filetype = getbufvar(v.bufnr, '&filetype')
-                    let buftype = getbufvar(v.bufnr, '&buftype')
-                    let bufname = bufname(v.bufnr)
-                    if filetype == g:cheerful_struct_settype[kc] && g:cheerful_struct_setpart[kc] == 'info'
-                        call win_execute(winid, 'silent wincmd L')
+                for il in l:winlist
+                    let l:bufnr = il.bufnr
+                    let l:winnr = il.winnr
+                    let l:winid = il.winid
+                    let l:filetype = getbufvar(il.bufnr, '&filetype')
+                    let l:buftype = getbufvar(il.bufnr, '&buftype')
+                    let l:bufname = bufname(il.bufnr)
+                    if l:filetype == g:cheerful_struct_settype[kc] && g:cheerful_struct_setpart[kc] == 'info'
+                        call win_execute(l:winid, 'silent wincmd L')
                         if g:cheerful_struct_setnohi[kc] == 1
-                            call win_execute(winid, 'setlocal nocursorline')
-                            call win_execute(winid, 'setlocal nocursorcolumn')
+                            call win_execute(l:winid, 'setlocal nocursorline')
+                            call win_execute(l:winid, 'setlocal nocursorcolumn')
                         endif
                         break
                     endif
                 endfor
             endfor
             for [kc, vc] in items(g:cheerful_struct_setname)
-                for v in winlist
-                    let bufnr = v.bufnr
-                    let winnr = v.winnr
-                    let winid = v.winid
-                    let filetype = getbufvar(v.bufnr, '&filetype')
-                    let buftype = getbufvar(v.bufnr, '&buftype')
-                    let bufname = bufname(v.bufnr)
-                    if filetype == g:cheerful_struct_settype[kc] && g:cheerful_struct_setpart[kc] == 'output'
-                        call win_execute(winid, 'silent wincmd J')
+                for il in l:winlist
+                    let l:bufnr = il.bufnr
+                    let l:winnr = il.winnr
+                    let l:winid = il.winid
+                    let l:filetype = getbufvar(il.bufnr, '&filetype')
+                    let l:buftype = getbufvar(il.bufnr, '&buftype')
+                    let l:bufname = bufname(il.bufnr)
+                    if l:filetype == g:cheerful_struct_settype[kc] && g:cheerful_struct_setpart[kc] == 'output'
+                        call win_execute(l:winid, 'silent wincmd J')
                         if g:cheerful_struct_setnohi[kc] == 1
-                            call win_execute(winid, 'setlocal nocursorline')
-                            call win_execute(winid, 'setlocal nocursorcolumn')
+                            call win_execute(l:winid, 'setlocal nocursorline')
+                            call win_execute(l:winid, 'setlocal nocursorcolumn')
                         endif
                         break
                     endif
                 endfor
             endfor
             for [kc, vc] in items(g:cheerful_struct_setname)
-                for v in winlist
-                    let bufnr = v.bufnr
-                    let winnr = v.winnr
-                    let winid = v.winid
-                    let filetype = getbufvar(v.bufnr, '&filetype')
-                    let buftype = getbufvar(v.bufnr, '&buftype')
-                    let bufname = bufname(v.bufnr)
-                    if filetype == g:cheerful_struct_settype[kc] && g:cheerful_struct_setpart[kc] == 'tab'
-                        call win_execute(winid, 'silent wincmd K')
+                for il in l:winlist
+                    let l:bufnr = il.bufnr
+                    let l:winnr = il.winnr
+                    let l:winid = il.winid
+                    let l:filetype = getbufvar(il.bufnr, '&filetype')
+                    let l:buftype = getbufvar(il.bufnr, '&buftype')
+                    let l:bufname = bufname(il.bufnr)
+                    if l:filetype == g:cheerful_struct_settype[kc] && g:cheerful_struct_setpart[kc] == 'tab'
+                        call win_execute(l:winid, 'silent wincmd K')
                         if g:cheerful_struct_setnohi[kc] == 1
-                            call win_execute(winid, 'setlocal nocursorline')
-                            call win_execute(winid, 'setlocal nocursorcolumn')
+                            call win_execute(l:winid, 'setlocal nocursorline')
+                            call win_execute(l:winid, 'setlocal nocursorcolumn')
                         endif
                         break
                     endif
                 endfor
             endfor
             for [kc, vc] in items(g:cheerful_struct_setname)
-                for v in winlist
-                    let bufnr = v.bufnr
-                    let winnr = v.winnr
-                    let winid = v.winid
-                    let filetype = getbufvar(v.bufnr, '&filetype')
-                    let buftype = getbufvar(v.bufnr, '&buftype')
-                    let bufname = bufname(v.bufnr)
-                    if filetype == g:cheerful_struct_settype[kc] && g:cheerful_struct_setpart[kc] == 'tree'
-                        call win_execute(winid, 'silent wincmd H')
+                for il in l:winlist
+                    let l:bufnr = il.bufnr
+                    let l:winnr = il.winnr
+                    let l:winid = il.winid
+                    let l:filetype = getbufvar(il.bufnr, '&filetype')
+                    let l:buftype = getbufvar(il.bufnr, '&buftype')
+                    let l:bufname = bufname(il.bufnr)
+                    if l:filetype == g:cheerful_struct_settype[kc] && g:cheerful_struct_setpart[kc] == 'tree'
+                        call win_execute(l:winid, 'silent wincmd H')
                         if g:cheerful_struct_setnohi[kc] == 1
-                            call win_execute(winid, 'setlocal nocursorline')
-                            call win_execute(winid, 'setlocal nocursorcolumn')
+                            call win_execute(l:winid, 'setlocal nocursorline')
+                            call win_execute(l:winid, 'setlocal nocursorcolumn')
                         endif
                         break
                     endif
@@ -205,72 +301,72 @@ if exists('g:cheerful_struct_enabled') && g:cheerful_struct_enabled == 1
             endfor
             " check size
             for [kc, vc] in items(g:cheerful_struct_setname)
-                for v in winlist
-                    let bufnr = v.bufnr
-                    let winnr = v.winnr
-                    let winid = v.winid
-                    let filetype = getbufvar(v.bufnr, '&filetype')
-                    let buftype = getbufvar(v.bufnr, '&buftype')
-                    let bufname = bufname(v.bufnr)
-                    if filetype == g:cheerful_struct_settype[kc] && g:cheerful_struct_setpart[kc] == 'info'
-                        call win_execute(winid, 'vertical resize '.g:cheerful_struct_setsize[kc])
+                for il in l:winlist
+                    let l:bufnr = il.bufnr
+                    let l:winnr = il.winnr
+                    let l:winid = il.winid
+                    let l:filetype = getbufvar(il.bufnr, '&filetype')
+                    let l:buftype = getbufvar(il.bufnr, '&buftype')
+                    let l:bufname = bufname(il.bufnr)
+                    if l:filetype == g:cheerful_struct_settype[kc] && g:cheerful_struct_setpart[kc] == 'info'
+                        call win_execute(l:winid, 'vertical resize '.g:cheerful_struct_setsize[kc])
                         break
                     endif
                 endfor
             endfor
             for [kc, vc] in items(g:cheerful_struct_setname)
-                for v in winlist
-                    let bufnr = v.bufnr
-                    let winnr = v.winnr
-                    let winid = v.winid
-                    let filetype = getbufvar(v.bufnr, '&filetype')
-                    let buftype = getbufvar(v.bufnr, '&buftype')
-                    let bufname = bufname(v.bufnr)
-                    if filetype == g:cheerful_struct_settype[kc] && g:cheerful_struct_setpart[kc] == 'output'
-                        call win_execute(winid, 'resize '.g:cheerful_struct_setsize[kc])
+                for il in l:winlist
+                    let l:bufnr = il.bufnr
+                    let l:winnr = il.winnr
+                    let l:winid = il.winid
+                    let l:filetype = getbufvar(il.bufnr, '&filetype')
+                    let l:buftype = getbufvar(il.bufnr, '&buftype')
+                    let l:bufname = bufname(il.bufnr)
+                    if l:filetype == g:cheerful_struct_settype[kc] && g:cheerful_struct_setpart[kc] == 'output'
+                        call win_execute(l:winid, 'resize '.g:cheerful_struct_setsize[kc])
                         break
                     endif
                 endfor
             endfor
             for [kc, vc] in items(g:cheerful_struct_setname)
-                for v in winlist
-                    let bufnr = v.bufnr
-                    let winnr = v.winnr
-                    let winid = v.winid
-                    let filetype = getbufvar(v.bufnr, '&filetype')
-                    let buftype = getbufvar(v.bufnr, '&buftype')
-                    let bufname = bufname(v.bufnr)
-                    if filetype == g:cheerful_struct_settype[kc] && g:cheerful_struct_setpart[kc] == 'tab'
-                        call win_execute(winid, 'resize '.g:cheerful_struct_setsize[kc])
+                for il in l:winlist
+                    let l:bufnr = il.bufnr
+                    let l:winnr = il.winnr
+                    let l:winid = il.winid
+                    let l:filetype = getbufvar(il.bufnr, '&filetype')
+                    let l:buftype = getbufvar(il.bufnr, '&buftype')
+                    let l:bufname = bufname(il.bufnr)
+                    if l:filetype == g:cheerful_struct_settype[kc] && g:cheerful_struct_setpart[kc] == 'tab'
+                        call win_execute(l:winid, 'resize '.g:cheerful_struct_setsize[kc])
                         break
                     endif
                 endfor
             endfor
             for [kc, vc] in items(g:cheerful_struct_setname)
-                for v in winlist
-                    let bufnr = v.bufnr
-                    let winnr = v.winnr
-                    let winid = v.winid
-                    let filetype = getbufvar(v.bufnr, '&filetype')
-                    let buftype = getbufvar(v.bufnr, '&buftype')
-                    let bufname = bufname(v.bufnr)
-                    if filetype == g:cheerful_struct_settype[kc] && g:cheerful_struct_setpart[kc] == 'tree'
-                        call win_execute(winid, 'vertical resize '.g:cheerful_struct_setsize[kc])
+                for il in l:winlist
+                    let l:bufnr = il.bufnr
+                    let l:winnr = il.winnr
+                    let l:winid = il.winid
+                    let l:filetype = getbufvar(il.bufnr, '&filetype')
+                    let l:buftype = getbufvar(il.bufnr, '&buftype')
+                    let l:bufname = bufname(il.bufnr)
+                    if l:filetype == g:cheerful_struct_settype[kc] && g:cheerful_struct_setpart[kc] == 'tree'
+                        call win_execute(l:winid, 'vertical resize '.g:cheerful_struct_setsize[kc])
                         break
                     endif
                 endfor
             endfor
             " fix size
             for [kc, vc] in items(g:cheerful_struct_setname)
-                for v in winlist
-                    let bufnr = v.bufnr
-                    let winnr = v.winnr
-                    let winid = v.winid
-                    let filetype = getbufvar(v.bufnr, '&filetype')
-                    let buftype = getbufvar(v.bufnr, '&buftype')
-                    let bufname = bufname(v.bufnr)
-                    if filetype == g:cheerful_struct_settype[kc] && g:cheerful_struct_setpart[kc] == 'info'
-                        call win_execute(winid, 'vertical resize '.g:cheerful_struct_setsize[kc])
+                for il in l:winlist
+                    let l:bufnr = il.bufnr
+                    let l:winnr = il.winnr
+                    let l:winid = il.winid
+                    let l:filetype = getbufvar(il.bufnr, '&filetype')
+                    let l:buftype = getbufvar(il.bufnr, '&buftype')
+                    let l:bufname = bufname(il.bufnr)
+                    if l:filetype == g:cheerful_struct_settype[kc] && g:cheerful_struct_setpart[kc] == 'info'
+                        call win_execute(l:winid, 'vertical resize '.g:cheerful_struct_setsize[kc])
                         break
                     endif
                 endfor
@@ -290,15 +386,15 @@ if exists('g:cheerful_struct_enabled') && g:cheerful_struct_enabled == 1
         if g:cheerful_struct_mainwin > 0 && has_key(g:cheerful_struct_setname, a:name)
             let l:winid_original = bufwinid('%')
             " save state
-            let set_show = {}
+            let l:setshow = {}
             for [kc, vc] in items(g:cheerful_struct_setshow)
-                let set_show[kc] = g:cheerful_struct_setshow[kc]
+                let l:setshow[kc] = g:cheerful_struct_setshow[kc]
             endfor
             " handle close
-            let winlist = getwininfo()
+            let l:winlist = getwininfo()
             for [kc, vc] in items(g:cheerful_struct_setname)
                 if !empty(g:cheerful_struct_setcoth[a:name]) && index(g:cheerful_struct_setcoth[a:name], kc) != -1
-                    if set_show[kc] == 1
+                    if l:setshow[kc] == 1
                         silent exe g:cheerful_struct_setclse[kc]
                     endif
                 endif
@@ -312,7 +408,7 @@ if exists('g:cheerful_struct_enabled') && g:cheerful_struct_enabled == 1
             " handle restore
             for [kc, vc] in items(g:cheerful_struct_setname)
                 if !empty(g:cheerful_struct_setcoth[a:name]) && index(g:cheerful_struct_setcoth[a:name], kc) != -1
-                    if set_show[kc] == 1
+                    if l:setshow[kc] == 1
                         silent exe g:cheerful_struct_setopen[kc]
                     endif
                 endif
@@ -333,46 +429,46 @@ if exists('g:cheerful_struct_enabled') && g:cheerful_struct_enabled == 1
         call cheerful#StructInit()
         call win_gotoid(g:cheerful_struct_mainwin)
         " clean other
-        let winlist = getwininfo()
-        for v in winlist
-            let bufnr = v.bufnr
-            let winnr = v.winnr
-            let winid = v.winid
-            let filetype = getbufvar(v.bufnr, '&filetype')
-            let buftype = getbufvar(v.bufnr, '&buftype')
-            let bufname = bufname(v.bufnr)
-            let if_have = 0
-            for [k, v] in items(g:cheerful_struct_setname)
-                if g:cheerful_struct_settype[k] == filetype
-                    let if_have = 1
+        let l:winlist = getwininfo()
+        for il in l:winlist
+            let l:bufnr = il.bufnr
+            let l:winnr = il.winnr
+            let l:winid = il.winid
+            let l:filetype = getbufvar(il.bufnr, '&filetype')
+            let l:buftype = getbufvar(il.bufnr, '&buftype')
+            let l:bufname = bufname(il.bufnr)
+            let l:ifhave = 0
+            for [kc, vc] in items(g:cheerful_struct_setname)
+                if g:cheerful_struct_settype[kc] == l:filetype
+                    let l:ifhave = 1
                     break
                 endif
             endfor
-            if if_have != 1 && !empty(buftype)
-                call win_execute(winid, 'close')
+            if l:ifhave != 1 && !empty(l:buftype)
+                call win_execute(l:winid, 'close')
             endif
         endfor
         " operate win
-        for [k, v] in items(g:cheerful_struct_setname)
-            if g:cheerful_struct_setpart[k] == 'tree'
-                call cheerful#StructOperate(k, 'open')
+        for [kc, vc] in items(g:cheerful_struct_setname)
+            if g:cheerful_struct_setpart[kc] == 'tree'
+                call cheerful#StructOperate(kc, 'open')
                 break
             endif
         endfor
-        for [k, v] in items(g:cheerful_struct_setname)
-            if g:cheerful_struct_setpart[k] == 'tab'
-                call cheerful#StructOperate(k, 'open')
+        for [kc, vc] in items(g:cheerful_struct_setname)
+            if g:cheerful_struct_setpart[kc] == 'tab'
+                call cheerful#StructOperate(kc, 'open')
                 break
             endif
         endfor
-        for [k, v] in items(g:cheerful_struct_setname)
-            if g:cheerful_struct_setpart[k] == 'output'
-                call cheerful#StructOperate(k, 'close')
+        for [kc, vc] in items(g:cheerful_struct_setname)
+            if g:cheerful_struct_setpart[kc] == 'output'
+                call cheerful#StructOperate(kc, 'close')
             endif
         endfor
-        for [k, v] in items(g:cheerful_struct_setname)
-            if g:cheerful_struct_setpart[k] == 'info'
-                call cheerful#StructOperate(k, 'close')
+        for [kc, vc] in items(g:cheerful_struct_setname)
+            if g:cheerful_struct_setpart[kc] == 'info'
+                call cheerful#StructOperate(kc, 'close')
             endif
         endfor
     endfunction
@@ -383,12 +479,12 @@ if exists('g:cheerful_struct_enabled') && g:cheerful_struct_enabled == 1
     function cheerful#StructOutput()
         call cheerful#StructInit()
         call win_gotoid(g:cheerful_struct_mainwin)
-        for [k, v] in items(g:cheerful_struct_setname)
-            if g:cheerful_struct_setpart[k] == 'output'
-                if g:cheerful_struct_setshow[k] == 0
-                    call cheerful#StructOperate(k, 'open')
+        for [kc, vc] in items(g:cheerful_struct_setname)
+            if g:cheerful_struct_setpart[kc] == 'output'
+                if g:cheerful_struct_setshow[kc] == 0
+                    call cheerful#StructOperate(kc, 'open')
                 else
-                    call cheerful#StructOperate(k, 'close')
+                    call cheerful#StructOperate(kc, 'close')
                 endif
             endif
         endfor
@@ -400,12 +496,12 @@ if exists('g:cheerful_struct_enabled') && g:cheerful_struct_enabled == 1
     function cheerful#StructInfo()
         call cheerful#StructInit()
         call win_gotoid(g:cheerful_struct_mainwin)
-        for [k, v] in items(g:cheerful_struct_setname)
-            if g:cheerful_struct_setpart[k] == 'info'
-                if g:cheerful_struct_setshow[k] == 0
-                    call cheerful#StructOperate(k, 'open')
+        for [kc, vc] in items(g:cheerful_struct_setname)
+            if g:cheerful_struct_setpart[kc] == 'info'
+                if g:cheerful_struct_setshow[kc] == 0
+                    call cheerful#StructOperate(kc, 'open')
                 else
-                    call cheerful#StructOperate(k, 'close')
+                    call cheerful#StructOperate(kc, 'close')
                 endif
             endif
         endfor
@@ -418,44 +514,44 @@ if exists('g:cheerful_struct_enabled') && g:cheerful_struct_enabled == 1
         call cheerful#StructInit()
         call win_gotoid(g:cheerful_struct_mainwin)
         " clean other
-        let winlist = getwininfo()
-        for v in winlist
-            let bufnr = v.bufnr
-            let winnr = v.winnr
-            let winid = v.winid
-            let filetype = getbufvar(v.bufnr, '&filetype')
-            let buftype = getbufvar(v.bufnr, '&buftype')
-            let bufname = bufname(v.bufnr)
-            let if_have = 0
-            for [k, v] in items(g:cheerful_struct_setname)
-                if g:cheerful_struct_settype[k] == filetype
-                    let if_have = 1
+        let l:winlist = getwininfo()
+        for il in l:winlist
+            let l:bufnr = il.bufnr
+            let l:winnr = il.winnr
+            let l:winid = il.winid
+            let l:filetype = getbufvar(il.bufnr, '&filetype')
+            let l:buftype = getbufvar(il.bufnr, '&buftype')
+            let l:bufname = bufname(il.bufnr)
+            let l:ifhave = 0
+            for [kc, vc] in items(g:cheerful_struct_setname)
+                if g:cheerful_struct_settype[kc] == l:filetype
+                    let l:ifhave = 1
                     break
                 endif
             endfor
-            if if_have != 1 && !empty(buftype)
-                call win_execute(winid, 'close')
+            if l:ifhave != 1 && !empty(l:buftype)
+                call win_execute(l:winid, 'close')
             endif
         endfor
         " operate win
-        for [k, v] in items(g:cheerful_struct_setname)
-            if g:cheerful_struct_setpart[k] == 'tree'
-                call cheerful#StructOperate(k, 'close')
+        for [kc, vc] in items(g:cheerful_struct_setname)
+            if g:cheerful_struct_setpart[kc] == 'tree'
+                call cheerful#StructOperate(kc, 'close')
             endif
         endfor
-        for [k, v] in items(g:cheerful_struct_setname)
-            if g:cheerful_struct_setpart[k] == 'tab'
-                call cheerful#StructOperate(k, 'open')
+        for [kc, vc] in items(g:cheerful_struct_setname)
+            if g:cheerful_struct_setpart[kc] == 'tab'
+                call cheerful#StructOperate(kc, 'open')
             endif
         endfor
-        for [k, v] in items(g:cheerful_struct_setname)
-            if g:cheerful_struct_setpart[k] == 'output'
-                call cheerful#StructOperate(k, 'close')
+        for [kc, vc] in items(g:cheerful_struct_setname)
+            if g:cheerful_struct_setpart[kc] == 'output'
+                call cheerful#StructOperate(kc, 'close')
             endif
         endfor
-        for [k, v] in items(g:cheerful_struct_setname)
-            if g:cheerful_struct_setpart[k] == 'info'
-                call cheerful#StructOperate(k, 'close')
+        for [kc, vc] in items(g:cheerful_struct_setname)
+            if g:cheerful_struct_setpart[kc] == 'info'
+                call cheerful#StructOperate(kc, 'close')
             endif
         endfor
     endfunction
@@ -465,15 +561,15 @@ if exists('g:cheerful_struct_enabled') && g:cheerful_struct_enabled == 1
     " --------------------------------------------------
     function cheerful#StructDebug()
         echo printf("= %-8s = %-8s = %-8s = %-16s = %-16s = %-16s", 'bufnr', 'winnr', 'winid', 'filetype', 'buftype', 'bufname')
-        let winlist = getwininfo()
-        for v in winlist
-            let bufnr = v.bufnr
-            let winnr = v.winnr
-            let winid = v.winid
-            let filetype = getbufvar(v.bufnr, '&filetype')
-            let buftype = getbufvar(v.bufnr, '&buftype')
-            let bufname = bufname(v.bufnr)
-            echo printf("> %-8d > %-8d > %-8d > %-16s > %-16s > %-16s", bufnr, winnr, winid, filetype, buftype, bufname)
+        let l:winlist = getwininfo()
+        for il in l:winlist
+            let l:bufnr = il.bufnr
+            let l:winnr = il.winnr
+            let l:winid = il.winid
+            let l:filetype = getbufvar(il.bufnr, '&filetype')
+            let l:buftype = getbufvar(il.bufnr, '&buftype')
+            let l:bufname = bufname(il.bufnr)
+            echo printf("> %-8d > %-8d > %-8d > %-16s > %-16s > %-16s", l:bufnr, l:winnr, l:winid, l:filetype, l:buftype, l:bufname)
         endfor
     endfunction
 
@@ -511,21 +607,21 @@ if exists('g:cheerful_reopen_enabled') && g:cheerful_reopen_enabled == 1
             call mkdir(g:cheerful_reopen_setpath, 'p', 0777)
         endif
         if filereadable(g:cheerful_reopen_file)
-            let savelist = []
-            let bufname = fnamemodify(bufname(a:buf), ':p')
-            let buflist = getbufinfo({'buflisted':1})
-            let bnrlist = map(copy(buflist), 'v:val.bufnr')
-            if index(bnrlist, a:buf) != -1
-                for v in buflist
-                    if !empty(v.name)
-                        if v.name == bufname
-                            call add(savelist, v.name."*C*1*1*1")
+            let l:savelist = []
+            let l:bufname = fnamemodify(bufname(a:buf), ':p')
+            let l:buflist = getbufinfo({'buflisted':1})
+            let l:bnrlist = map(copy(l:buflist), 'v:val.bufnr')
+            if index(l:bnrlist, a:buf) != -1
+                for il in l:buflist
+                    if !empty(il.name)
+                        if il.name == l:bufname
+                            call add(l:savelist, il.name."*C*1*1*1")
                         else
-                            call add(savelist, v.name."*X*1*1*1")
+                            call add(l:savelist, il.name."*X*1*1*1")
                         endif
                     endif
                 endfor
-                let g:cheerful_reopen_data = savelist
+                let g:cheerful_reopen_data = l:savelist
                 call writefile(g:cheerful_reopen_data, g:cheerful_reopen_file, 'b')
             endif
         endif
@@ -539,15 +635,15 @@ if exists('g:cheerful_reopen_enabled') && g:cheerful_reopen_enabled == 1
             call mkdir(g:cheerful_reopen_setpath, 'p', 0777)
         endif
         if filereadable(g:cheerful_reopen_file)
-            let savelist = []
+            let l:savelist = []
             let g:cheerful_reopen_data = readfile(g:cheerful_reopen_file)
-            for v in g:cheerful_reopen_data
-                let rec = split(v, '*')
-                if (rec[0] != a:buf)
-                    call add(savelist, rec[0]."*X*".rec[2]."*".rec[3]."*".rec[4]."")
+            for il in g:cheerful_reopen_data
+                let l:rec = split(il, '*')
+                if (l:rec[0] != a:buf)
+                    call add(l:savelist, l:rec[0]."*X*".l:rec[2]."*".l:rec[3]."*".l:rec[4]."")
                 endif
             endfor
-            let g:cheerful_reopen_data = savelist
+            let g:cheerful_reopen_data = l:savelist
             call writefile(g:cheerful_reopen_data, g:cheerful_reopen_file, 'b')
         endif
     endfunction
@@ -560,20 +656,20 @@ if exists('g:cheerful_reopen_enabled') && g:cheerful_reopen_enabled == 1
             call mkdir(g:cheerful_reopen_setpath, 'p', 0777)
         endif
         if filereadable(g:cheerful_reopen_file)
-            let savelist = []
-            let currfile = ''
+            let l:savelist = []
+            let l:currfile = ''
             let g:cheerful_reopen_data = readfile(g:cheerful_reopen_file)
-            for v in g:cheerful_reopen_data
-                let rec = split(v, '*')
-                if exists("rec[0]") && rec[0] != "" && filereadable(rec[0])
-                    silent exe "edit ".rec[0]
-                    if rec[1] == 'C'
-                        let currfile = rec[0]
+            for il in g:cheerful_reopen_data
+                let l:rec = split(il, '*')
+                if exists("l:rec[0]") && l:rec[0] != "" && filereadable(l:rec[0])
+                    silent exe "edit ".l:rec[0]
+                    if l:rec[1] == 'C'
+                        let l:currfile = l:rec[0]
                     endif
                 endif
             endfor
-            if !empty(currfile)
-                silent exe "edit ".currfile
+            if !empty(l:currfile)
+                silent exe "edit ".l:currfile
             endif
         endif
     endfunction
